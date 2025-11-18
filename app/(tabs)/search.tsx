@@ -1,13 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { View } from 'react-native'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+import ExploreComponent from '../../components/explore/explorecomponet'
 
 const search = () => {
   return (
-    <View>
-      <Text>search</Text>
-    </View>
+    <SafeAreaProvider>
+      <View style={{ flex: 1 }}>
+        <ExploreComponent />
+      </View>
+    </SafeAreaProvider>
   )
 }
 
 export default search
-
-const styles = StyleSheet.create({})
