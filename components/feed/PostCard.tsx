@@ -1,10 +1,31 @@
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import {
+  Image,
+  ImageSourcePropType,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { colors } from "../../constants/colors";
 
-const formatLikes = (count) =>
+interface PostCardProps {
+  username: string;
+  location?: string;
+  avatar: ImageSourcePropType;
+  media: ImageSourcePropType;
+  likedBy: string;
+  likes: number;
+  caption: string;
+  slidesCount?: number;
+  activeSlide?: number;
+  verified?: boolean;
+  timeAgo?: string;
+}
+
+const formatLikes = (count: number) =>
   count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-const PostCard = ({
+const PostCard: React.FC<PostCardProps> = ({
   username,
   location,
   avatar,
@@ -40,7 +61,9 @@ const PostCard = ({
                 />
               )}
             </View>
-            <Text className="text-[11px] text-neutral-500">{location}</Text>
+            {location && (
+              <Text className="text-[11px] text-neutral-500">{location}</Text>
+            )}
           </View>
         </View>
         <Text className="text-[24px] text-neutral-800 leading-4">⋯</Text>
@@ -115,4 +138,3 @@ const PostCard = ({
 };
 
 export default PostCard;
-

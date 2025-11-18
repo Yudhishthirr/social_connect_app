@@ -1,7 +1,16 @@
-import { Image, Text, View } from "react-native";
+import React from "react";
+import { Image, ImageSourcePropType, Text, View } from "react-native";
 
-const StoryBubble = ({
-  label,
+interface StoryBubbleProps {
+  label?: string;
+  avatar: ImageSourcePropType;
+  isLive?: boolean;
+  isNew?: boolean;
+  isCurrentUser?: boolean;
+}
+
+const StoryBubble: React.FC<StoryBubbleProps> = ({
+  label = "",
   avatar,
   isLive = false,
   isNew = true,
@@ -10,8 +19,8 @@ const StoryBubble = ({
   const ringClass = isCurrentUser
     ? "border border-neutral-300"
     : isNew
-      ? "border-2 border-[#F56040]"
-      : "border-2 border-neutral-200";
+    ? "border-2 border-[#F56040]"
+    : "border-2 border-neutral-200";
 
   return (
     <View className="items-center mr-4">
@@ -45,4 +54,3 @@ const StoryBubble = ({
 };
 
 export default StoryBubble;
-
