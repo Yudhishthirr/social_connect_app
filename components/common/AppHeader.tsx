@@ -15,7 +15,7 @@ const AppHeader = () => {
         <TouchableOpacity className="p-2 -ml-2">
           <Image
             source={require("../../assets/icons/camera.png")}
-            className="h-6 w-6"
+            className="h-7 w-7"
             resizeMode="contain"
           />
         </TouchableOpacity>
@@ -27,13 +27,13 @@ const AppHeader = () => {
         />
 
         <View className="flex-row items-center">
-          <TouchableOpacity className="p-2 mr-1">
+          {/* <TouchableOpacity className="p-2 mr-1">
             <Image
               source={require("../../assets/icons/IGTV.png")}
               className="h-6 w-6"
               resizeMode="contain"
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity className="p-2 -mr-2">
             <Image
               source={require("../../assets/icons/share.png")}
@@ -48,3 +48,4 @@ const AppHeader = () => {
 };
 
 export { AppHeader };
+

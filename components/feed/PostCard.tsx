@@ -86,7 +86,7 @@ const PostCard: React.FC<PostCardProps> = ({
         <View className="flex-row items-center">
           <TouchableOpacity className="mr-4">
             <Image
-              source={require("../../assets/icons/notification.png")}
+              source={require("../../assets/icons/heart.png")}
               className="h-6 w-6"
             />
           </TouchableOpacity>

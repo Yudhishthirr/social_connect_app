@@ -42,7 +42,7 @@ export default function TabsLayout() {
           title: "Home",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.home} />
+            <TabIcon focused={focused} icon={icons.home2} />
           ),
         }}
       />
@@ -53,7 +53,7 @@ export default function TabsLayout() {
           title: "Search",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.search} />
+            <TabIcon focused={focused} icon={icons.search2} />
           ),
         }}
       />
