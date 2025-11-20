@@ -1,7 +1,8 @@
-import { ScrollView, View } from "react-native";
+import { useState } from "react";
+import { Modal, ScrollView, View } from "react-native";
 import { colors } from "../../constants/colors";
 import StoryBubble from "./StoryBubble";
-
+import StoryView from "./StoryView";
 const storyData = [
   {
     id: "me",
@@ -71,6 +72,8 @@ const storyData = [
 ];
 
 const StoriesStrip = () => {
+  const [openStoryId, setOpenStoryId] = useState<string | null>(null);
+  let id = 2;
   return (
     <View
       className="bg-white border-b border-neutral-200"
@@ -83,9 +86,18 @@ const StoriesStrip = () => {
         className="py-3"
       >
         {storyData.map((story) => (
-          <StoryBubble key={story.id} {...story} />
+          <StoryBubble key={story.id} {...story}  onPress={(storyId) => setOpenStoryId(storyId)}/>
         ))}
       </ScrollView>
+
+      {openStoryId && (
+        <Modal animationType="fade" transparent={false}>
+          <StoryView
+            // storyId={openStoryId}
+            // onClose={() => setOpenStoryId(null)}
+          />
+        </Modal>
+      )}
     </View>
   );
 };
