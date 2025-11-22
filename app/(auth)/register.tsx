@@ -1,23 +1,45 @@
+import { registerUser } from "@/services/api";
 import { Link } from "expo-router";
 import { useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const RegisterScreen = () => {
   const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const canSubmit = username.trim().length > 0 && password.trim().length > 0;
 
+  const handleRegister = async () => {
+    try {
+      const result = await registerUser({
+        fullName,
+        email,
+        username,
+        password,
+      });
+      console.log("result")
+      // console.log(result)
+      // if (result.success) {
+      //   Alert.alert("Success", "User registered successfully!");
+      // } else {
+      //   Alert.alert("Error", result.message);
+      // }
+    } catch (err: any) {
+      // Alert.alert("Error", err?.response?.data?.message || "Something went wrong");
+    }
+  };
+  
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
@@ -43,7 +65,18 @@ const RegisterScreen = () => {
             {/* Form */}
             <View className="mt-10 space-y-4 gap-4">
             
-            <View className="border border-neutral-200 rounded-lg bg-neutral-50 ">
+              <View className="border border-neutral-200 rounded-lg bg-neutral-50 ">
+                <TextInput
+                  value={fullName}
+                  onChangeText={setFullName}
+                  placeholder="FullName"
+                  placeholderTextColor="#a1a1aa"
+                  className="h-12 px-4 text-[15px] text-black font-medium"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+              <View className="border border-neutral-200 rounded-lg bg-neutral-50 ">
                 <TextInput
                   value={email}
                   onChangeText={setEmail}
@@ -54,6 +87,7 @@ const RegisterScreen = () => {
                   autoCorrect={false}
                 />
               </View>
+              
               <View className="border border-neutral-200 rounded-lg bg-neutral-50 ">
                 <TextInput
                   value={username}
@@ -85,15 +119,14 @@ const RegisterScreen = () => {
 
               <TouchableOpacity
                 activeOpacity={0.9}
+                onPress={handleRegister}
                 className={`h-12 rounded-lg items-center justify-center ${
                   canSubmit ? "bg-[#3797EF]" : "bg-[#B9DFFC]"
                 }`}
-              >
-                
-                    <Text className="text-white text-base font-semibold">
-                        Sign Up
-                    </Text>
-              
+              >  
+              <Text className="text-white text-base font-semibold">
+                  Sign Up
+              </Text>
               </TouchableOpacity>
 
             

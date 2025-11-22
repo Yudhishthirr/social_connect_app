@@ -4,7 +4,7 @@ import "../global.css";
 
 export default function RootLayout() {
 
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   
