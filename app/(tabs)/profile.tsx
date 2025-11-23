@@ -1,6 +1,6 @@
+import { RootState } from "@/store";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-
 import {
   Image,
   ScrollView,
@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
 
 const PROFILE_STATS = [
   { id: "posts", value: "54", label: "Posts" },
@@ -50,6 +51,9 @@ const GRID_POSTS = [
 
 const ProfileScreen = () => {
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.auth.user);
+  console.log("this is the user information form the redux state");
+  console.log(user)
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -100,7 +104,8 @@ const ProfileScreen = () => {
         </View>
 
         <TouchableOpacity 
-          onPress={() => router.push("/profile/edit")}
+          // onPress={() => router.push("/profile/edit")}
+          onPress={() => router.push("/(auth)/login")}
           activeOpacity={0.8} 
           style={styles.editButton}
         >

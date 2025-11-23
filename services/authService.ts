@@ -1,33 +1,20 @@
-import * as SecureStore from "expo-secure-store";
-import { api } from "./api";
 
-export interface RegisterResponse {
-  success: boolean;
-  message: string;
-  token?: string;
-  user?: {
-    id: string;
-    username: string;
-    email: string;
-  };
-}
+import { ApiEndpoint } from "@/constants/apiendpoint";
+import { api } from "@/utils/api";
+import { LoginSchemaType, RegisterSchemaType } from "@/validation/authSchema";
 
-export async function registerUser(
-  email: string,
-  username: string,
-  password: string
-): Promise<RegisterResponse> {
-  const response = await api.post<RegisterResponse>("/users/register", {
-    email,
-    username,
-    password,
-  });
+export const registerUser = async (data: RegisterSchemaType) => {
+  
+  const res = await api.post(ApiEndpoint.users.register, data);
+  return res.data;
+};
 
-  const token = response.data?.token;
+export const loginUser = async (data: LoginSchemaType) => {
+  const res = await api.post(ApiEndpoint.users.login, data);
+  return res.data; 
+};
 
-  if (token) {
-    await SecureStore.setItemAsync("authToken", token);
-  }
-
-  return response.data;
-}
+export const getCurrentUser = async () => {
+  const res = await api.get(ApiEndpoint.users.currentUser);
+  return res.data;
+};

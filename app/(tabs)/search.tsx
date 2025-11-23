@@ -1,6 +1,6 @@
+import ExploreComponent from '@/components/explore/explorecomponet'
 import { View } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import ExploreComponent from '../../components/explore/explorecomponet'
 
 const search = () => {
   return (
