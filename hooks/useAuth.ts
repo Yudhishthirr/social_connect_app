@@ -1,5 +1,5 @@
 // src/hooks/useAuth.ts
-import { loginUser, registerUser } from "@/services/authService";
+import { loginUser, logoutUser, registerUser } from "@/services/authService";
 import { logout, setCredentials } from "@/store/slices/authSlice";
 import { LoginSchemaType, RegisterSchemaType } from "@/validation/authSchema";
 import * as SecureStore from "expo-secure-store";
@@ -56,26 +56,35 @@ export function useAuth() {
   };
   
 
-  // const autoLogin = async () => {
-  //   const token = await SecureStore.getItemAsync("token");
-  //   if (!token) return null;
+  
+  const logoutUserhook = async () => {
+    try {
+      
+      const res = await logoutUser();
+      if (res?.success) {
 
-  //   const user = await fetchMe();
+        await SecureStore.deleteItemAsync("accessToken");
+        await SecureStore.deleteItemAsync("refreshToken");
+  
+        // const accessCheck = await SecureStore.getItemAsync("accessToken");
+        // const refreshCheck = await SecureStore.getItemAsync("refreshToken");
+  
+        // console.log("Access Token deleted:", accessCheck === null);
+        // console.log("Refresh Token deleted:", refreshCheck === null);
 
-  //   dispatch(
-  //     setCredentials({
-  //       user,
-  //       token,
-  //     })
-  //   );
-
-  //   return user;
-  // };
-
-  const logoutUser = async () => {
-    await SecureStore.deleteItemAsync("token");
-    dispatch(logout());
+        dispatch(logout()); // redux clear user
+      }
+  
+      return res;
+    } catch (err:any) {
+      if (err.response) {
+        alert(err.response.data.message);
+      } else {
+        console.log("Network/Unknown Error ➜", err.message);
+      }
+    }
   };
+  
 
-  return { login, register, logoutUser };
+  return { login, register, logoutUserhook };
 }

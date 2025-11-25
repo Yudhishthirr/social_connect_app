@@ -17,11 +17,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
 import { useAuth } from "@/hooks/useAuth";
-
 const LoginScreen = () => {
-  const router = useRouter();
-  const { login } = useAuth();
 
+
+  const router = useRouter();
+ 
+  const { login } = useAuth();
+  
   // React Hook Form Setup
   const {control,handleSubmit,formState: { errors, isSubmitting },} = useForm<LoginSchemaType>({resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -30,7 +32,7 @@ const LoginScreen = () => {
     },
   });
 
-  const onSubmit = async (data: LoginSchemaType) => {
+  const onSubmit =   async (data: LoginSchemaType) => {
     try {
       const res = await login(data);
 
@@ -124,7 +126,10 @@ const LoginScreen = () => {
               />
 
               {/* Forgot password */}
-              <TouchableOpacity className="self-end mt-1">
+              <TouchableOpacity 
+                className="self-end mt-1" 
+               
+              >
                 <Text className="text-xs font-semibold text-[#3797EF]">
                   Forgot password?
                 </Text>

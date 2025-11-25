@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { RootState } from "@/store";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -11,7 +12,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
-
 const PROFILE_STATS = [
   { id: "posts", value: "54", label: "Posts" },
   { id: "followers", value: "834", label: "Followers" },
@@ -54,6 +54,13 @@ const ProfileScreen = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   console.log("this is the user information form the redux state");
   console.log(user)
+
+  const {logoutUserhook } = useAuth();
+
+  function logoutCurrentUser(){
+    logoutUserhook();
+    router.push("/(auth)/login");
+  }
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -104,14 +111,13 @@ const ProfileScreen = () => {
         </View>
 
         <TouchableOpacity 
-          // onPress={() => router.push("/profile/edit")}
-          onPress={() => router.push("/(auth)/login")}
+          onPress={logoutCurrentUser}
+          
           activeOpacity={0.8} 
           style={styles.editButton}
         >
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
-
         <View style={styles.highlightsRow}>
           {STORY_HIGHLIGHTS.map((highlight) => (
             <View key={highlight.id} style={styles.highlightItem}>

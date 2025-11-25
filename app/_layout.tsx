@@ -19,7 +19,9 @@ function RootLayoutContent() {
     try {
      
       const token = await SecureStore.getItemAsync("accessToken");
-
+      console.log("token form the root page");
+      console.log(token);
+      
       if (!token) {
         setIsAuthenticated(false);
         setLoading(false);
@@ -28,7 +30,7 @@ function RootLayoutContent() {
 
       
       const res = await getCurrentUser();
-      console.log("get user called ");
+      console.log("get user called from the root page");
 
       if (res.success) {
         dispatch(
@@ -59,7 +61,10 @@ function RootLayoutContent() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
+      <>
         <Stack.Screen name="(tabs)" />
+      </>
+       
       ) : (
         <Stack.Screen name="(auth)/login" />
       )}
