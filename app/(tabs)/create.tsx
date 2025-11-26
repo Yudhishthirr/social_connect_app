@@ -83,7 +83,7 @@ const Create = () => {
         Alert.alert('Success', 'Post created successfully!', [
           {
             text: 'OK',
-            // onPress: handleReset,
+            onPress: handleReset,
           },
         ])
         router.push("/(tabs)")

@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
+
 const PROFILE_STATS = [
   { id: "posts", value: "54", label: "Posts" },
   { id: "followers", value: "834", label: "Followers" },
@@ -55,12 +56,14 @@ const ProfileScreen = () => {
   console.log("this is the user information form the redux state");
   console.log(user)
 
-  const {logoutUserhook } = useAuth();
-
+  const {logoutUserhook, } = useAuth();
+  
   function logoutCurrentUser(){
     logoutUserhook();
     router.push("/(auth)/login");
   }
+
+  
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

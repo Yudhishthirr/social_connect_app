@@ -4,7 +4,7 @@ const ApiEndpoint = {
   users: {
     login: `${BASE}/users/login`,
     register: `${BASE}/users/register`,
-    currentUser: `${BASE}/users/current-user`,
+    currentUser: `${BASE}/users/get-user-info`,
     logout: `${BASE}/users/logout`,
   },
 
