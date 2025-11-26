@@ -59,9 +59,9 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="reels"
+        name="create"
         options={{
-          title: "reel",
+          title: "create",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.save} />
