@@ -24,4 +24,8 @@ export const UserPost = async (data: PostSchemaType) => {
   
     return res.data;
 };
-  
+
+export const getAllPosts = async()=>{
+  const res = await api.post(ApiEndpoint.posts.getPosts);
+  return res.data; 
+}

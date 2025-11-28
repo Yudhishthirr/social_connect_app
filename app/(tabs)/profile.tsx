@@ -1,7 +1,9 @@
 import { useAuth } from "@/hooks/useAuth";
+import { getCurrentUser } from "@/services/authService";
 import { RootState } from "@/store";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -13,11 +15,18 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
-const PROFILE_STATS = [
-  { id: "posts", value: "54", label: "Posts" },
-  { id: "followers", value: "834", label: "Followers" },
-  { id: "following", value: "162", label: "Following" },
-];
+export interface ProfileProps {
+  _id: string;
+  avatar: string;
+  email: string;
+  followersCount: number;
+  followingCount: number;
+  fullName: string;
+  bio?:string;
+  posts: any[]; // or define a PostType if you have one
+  postsCount: number;
+  username: string;
+}
 
 const STORY_HIGHLIGHTS = [
   { id: "new", label: "New", isNew: true },
@@ -52,6 +61,8 @@ const GRID_POSTS = [
 
 const ProfileScreen = () => {
   const router = useRouter();
+  const [profile, setProfile] = useState<ProfileProps | null>(null);
+
   const user = useSelector((state: RootState) => state.auth.user);
   console.log("this is the user information form the redux state");
   console.log(user)
@@ -63,6 +74,18 @@ const ProfileScreen = () => {
     router.push("/(auth)/login");
   }
 
+  async function loadUserProfile() {
+    const res = await getCurrentUser();
+    console.log("Loaded profile:", res);
+  
+    if (res?.data) {
+      setProfile(res.data);
+    }
+  }
+  
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
   
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -70,7 +93,7 @@ const ProfileScreen = () => {
         <View style={styles.header}>
           <View style={styles.usernameWrapper}>
             <Ionicons name="lock-closed" size={14} color="#262626" />
-            <Text style={styles.username}>jacob_w</Text>
+            <Text style={styles.username}>{profile?.username}</Text>
             <Ionicons name="chevron-down" size={16} color="#262626" />
           </View>
 
@@ -85,9 +108,7 @@ const ProfileScreen = () => {
             <View style={styles.avatarOuterRing}>
               <View style={styles.avatarInnerRing}>
                 <Image
-                  source={{
-                    uri: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
-                  }}
+                  source={{ uri: profile?.avatar }}
                   style={styles.avatarImage}
                 />
               </View>
@@ -95,22 +116,19 @@ const ProfileScreen = () => {
           </View>
 
           <View style={styles.statsWrapper}>
-            {PROFILE_STATS.map((stat) => (
-              <View key={stat.id} style={styles.statItem}>
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-              </View>
-            ))}
+            <Text style={styles.statValue}>{profile?.postsCount}</Text>
+            <Text style={styles.statValue}>{profile?.followersCount}</Text>
+            <Text style={styles.statValue}>{profile?.followingCount}</Text>
           </View>
         </View>
 
         <View style={styles.bioSection}>
-          <Text style={styles.name}>Jacob West</Text>
+          <Text style={styles.name}>{profile?.fullName}</Text>
           <Text style={styles.bioText}>
-            Digital goodies designer{" "}
-            <Text style={styles.handle}>@pixsellz</Text>
+           {profile?.bio}
           </Text>
-          <Text style={styles.bioSubtext}>Everything is designed.</Text>
+          <Text style={styles.handle}>@demo</Text>
+          {/* <Text style={styles.bioSubtext}>Everything is designed.</Text> */}
         </View>
 
         <TouchableOpacity 

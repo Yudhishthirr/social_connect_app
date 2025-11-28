@@ -1,40 +1,66 @@
-import React from "react";
-import { ScrollView, View } from "react-native";
-import StoriesStrip from "./StoriesStrip";
+import { getAllPosts } from "@/services/postService";
+import { useEffect, useState } from "react";
+import { ImageSourcePropType, ScrollView, View } from "react-native";
 import PostCard from "./PostCard";
+import StoriesStrip from "./StoriesStrip";
 
-const posts = [
-  {
-    id: "post-1",
-    username: "joshua_l",
-    location: "Tokyo, Japan",
-    avatar: require("../../assets/appimages/proilfe button.png"),
-    media: require("../../assets/appimages/Rectangle.png"),
-    likedBy: "craig_love",
-    likes: 44686,
-    caption:
-      "The game in Japan was amazing and I want to share some photos",
-    slidesCount: 3,
-    activeSlide: 1,
-    verified: true,
-    timeAgo: "2 hours ago",
-  },
-  {
-    id: "post-2",
-    username: "kieron_d",
-    location: "Osaka, Japan",
-    avatar: require("../../assets/appimages/Inner Oval.png"),
-    media: require("../../assets/appimages/Rectangle.png"),
-    likedBy: "you",
-    likes: 8921,
-    caption: "City lights and calm nights.",
-    slidesCount: 1,
-    verified: false,
-    timeAgo: "4 hours ago",
-  },
-];
+export interface PostCardProps {
+  id: string;
+  username: string;
+  avatar: ImageSourcePropType;
+  media: ImageSourcePropType;
+  caption: string;
+  likes: number;
+  comments: number;
+  likedBy: string;
+  timeAgo: string;
+}
 
 const Feed = () => {
+  const [Allposts, setAllposts] = useState<PostCardProps[]>([]);
+
+  const loadposts = async () => {
+    try {
+        const res = await getAllPosts();
+        if (res?.data) {
+          const formatted = res.data.map((post: any) => ({
+            id: post._id,
+            username: post.user.username,
+            avatar: { uri: post.user.avatar },
+            media: { uri: post.postUrl },
+            caption: post.title,
+            likes: post.likeCount,
+            comments: post.commentCount,
+            likedBy: post.user.fullName,
+            timeAgo: formatTimeAgo(post.createdAt),
+          }));
+          setAllposts(formatted);
+        }
+    } catch (error: any) {
+      // Handle all API errors here
+      console.log("post fetch error:", error.message);
+     
+    }
+  };
+
+  useEffect(() => {
+   loadposts();
+  }, []);
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
   return (
     <ScrollView
       className="flex-1 bg-[#f8f8f8]"
@@ -44,7 +70,7 @@ const Feed = () => {
       <StoriesStrip />
       <View className="h-[0.5px] bg-neutral-200" />
       <View className="mt-2">
-        {posts.map((post) => (
+        {Allposts.map((post) => (
           <PostCard key={post.id} {...post} />
         ))}
       </View>
@@ -53,5 +79,3 @@ const Feed = () => {
 };
 
 export default Feed;
-
-

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Provider, useDispatch } from "react-redux";
 import "../global.css";
 
-
+import { StatusBar } from 'expo-status-bar';
 function RootLayoutContent() {
 
   const dispatch = useDispatch();
@@ -60,6 +60,7 @@ function RootLayoutContent() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+       
       {isAuthenticated ? (
       <>
         <Stack.Screen name="(tabs)" />
@@ -78,6 +79,7 @@ function RootLayoutContent() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
+      <StatusBar style="dark" />
       <RootLayoutContent />
     </Provider>
   );
