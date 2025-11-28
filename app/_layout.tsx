@@ -1,13 +1,14 @@
 import { getCurrentUser } from "@/services/authService";
 import { store } from "@/store";
 import { setCredentials } from "@/store/slices/authSlice";
+import { queryClient } from "@/utils/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from "react";
 import { Provider, useDispatch } from "react-redux";
 import "../global.css";
-
-import { StatusBar } from 'expo-status-bar';
 function RootLayoutContent() {
 
   const dispatch = useDispatch();
@@ -79,8 +80,10 @@ function RootLayoutContent() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <StatusBar style="dark" />
-      <RootLayoutContent />
+       <QueryClientProvider client={queryClient}>
+          <StatusBar style="dark" />
+          <RootLayoutContent />
+      </QueryClientProvider>
     </Provider>
   );
 }

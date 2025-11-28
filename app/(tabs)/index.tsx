@@ -7,6 +7,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <View style={{ flex: 1 }}>
+        {/* <Text>Hello World</Text> */}
         <AppHeader />
         <Feed />
       </View>

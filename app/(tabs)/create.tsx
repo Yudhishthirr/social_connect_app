@@ -1,115 +1,94 @@
-import { Loader } from '@/components/common/Loader'
-import { ImagePickerExample } from '@/components/common/PickImage'
-import { UserPost } from '@/services/postService'
-import { postSchema, PostSchemaType } from '@/validation/postSchema'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useFocusEffect } from '@react-navigation/native'
-import { router } from 'expo-router'
-import { useCallback, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { Loader } from '@/components/common/Loader';
+import { ImagePickerExample } from '@/components/common/PickImage';
+import { useCreatePost } from '@/hooks/usePosts';
+import { postSchema, PostSchemaType } from '@/validation/postSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useFocusEffect } from '@react-navigation/native';
+import { router } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const Create = () => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [showPicker, setShowPicker] = useState(true)
-  const isFocusedRef = useRef(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showPicker, setShowPicker] = useState(true);
+  const isFocusedRef = useRef(false);
 
-  // React Hook Form Setup
+  // React Query mutation
+  const { mutateAsync: createPostMutation, isPending } = useCreatePost();
+
+  // React Hook Form
   const {
     control,
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors }
   } = useForm<PostSchemaType>({
     resolver: zodResolver(postSchema),
     defaultValues: {
       title: '',
       hashtags: '',
-      postImage: '',
-    },
-  })
+      postImage: ''
+    }
+  });
 
   useFocusEffect(
     useCallback(() => {
-      // Open picker when tab is focused and no image is selected
       if (!selectedImage && !isFocusedRef.current) {
-        isFocusedRef.current = true
-        setShowPicker(true)
+        isFocusedRef.current = true;
+        setShowPicker(true);
       }
-      
+
       return () => {
-        // Reset when tab loses focus
-        isFocusedRef.current = false
-      }
+        isFocusedRef.current = false;
+      };
     }, [selectedImage])
-  )
+  );
 
   const handleImageSelected = (uri: string) => {
-    setSelectedImage(uri)
-    setShowPicker(false)
-    isFocusedRef.current = false
-    // Update form field for validation
-    setValue('postImage', uri)
-  }
+    setSelectedImage(uri);
+    setShowPicker(false);
+    isFocusedRef.current = false;
+    setValue('postImage', uri);
+  };
 
   const handleReset = () => {
-    setSelectedImage(null)
-    reset({
-      title: '',
-      hashtags: '',
-      postImage: '',
-    })
-    isFocusedRef.current = false
-    setShowPicker(true)
-  }
+    setSelectedImage(null);
+    reset();
+    isFocusedRef.current = false;
+    setShowPicker(true);
+  };
 
   const onSubmit = async (data: PostSchemaType) => {
     try {
-      const result = await UserPost(data)
+      const result = await createPostMutation(data);
 
       if (result?.success) {
         Alert.alert('Success', 'Post created successfully!', [
-          {
-            text: 'OK',
-            onPress: handleReset,
-          },
-        ])
-        router.push("/(tabs)")
+          { text: 'OK', onPress: handleReset }
+        ]);
+        router.push('/(tabs)');
       } else {
-        Alert.alert('Error', result?.message || 'Failed to create post')
+        Alert.alert('Error', result?.message || 'Failed to create post');
       }
     } catch (error: any) {
-      console.error('Post creation error:', error)
-      if (error.response) {
-        Alert.alert('Error', error.response.data?.message || 'Failed to create post')
-      } else {
-        Alert.alert('Error Pro', error.message || 'Network error. Please try again.')
-      }
+      console.error('Post creation error:', error);
+      Alert.alert('Error', error.message || 'Something went wrong.');
     }
-  }
+  };
 
   return (
     <SafeAreaProvider>
-    {isSubmitting && <Loader loadingText="Uploading..."/>}
+      {isPending && <Loader loadingText="Uploading..." />}
       <SafeAreaView className="flex-1 bg-white" edges={['top']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
         >
           {showPicker && (
-            <ImagePickerExample 
+            <ImagePickerExample
               onImageSelected={handleImageSelected}
               onCancel={() => setShowPicker(false)}
               autoOpen={true}
@@ -117,7 +96,7 @@ const Create = () => {
           )}
 
           {selectedImage ? (
-            <ScrollView 
+            <ScrollView
               className="flex-1"
               contentContainerStyle={{ paddingBottom: 20 }}
               keyboardShouldPersistTaps="handled"
@@ -127,22 +106,24 @@ const Create = () => {
                 <TouchableOpacity onPress={handleReset} className="p-2">
                   <Text className="text-base text-black">Cancel</Text>
                 </TouchableOpacity>
+
                 <Text className="text-lg font-semibold text-black">New Post</Text>
-                <TouchableOpacity 
+
+                <TouchableOpacity
                   onPress={handleSubmit(onSubmit)}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                   className="p-2"
                 >
-                  <Text className={`text-base font-semibold ${isSubmitting ? 'text-neutral-400' : 'text-[#0095f6]'}`}>
-                    {isSubmitting ? 'Sharing...' : 'Share'}
+                  <Text className={`text-base font-semibold ${isPending ? 'text-neutral-400' : 'text-[#0095f6]'}`}>
+                    {isPending ? 'Sharing...' : 'Share'}
                   </Text>
                 </TouchableOpacity>
               </View>
 
               {/* Image Preview */}
               <View className="w-full aspect-square bg-neutral-100">
-                <Image 
-                  source={{ uri: selectedImage }} 
+                <Image
+                  source={{ uri: selectedImage }}
                   className="w-full h-full"
                   resizeMode="cover"
                 />
@@ -150,6 +131,8 @@ const Create = () => {
 
               {/* Form */}
               <View className="p-4">
+
+                {/* Title */}
                 <View className="mb-6">
                   <Text className="text-base font-semibold text-black mb-2">Title</Text>
                   <Controller
@@ -178,6 +161,7 @@ const Create = () => {
                   />
                 </View>
 
+                {/* Hashtags */}
                 <View className="mb-6">
                   <Text className="text-base font-semibold text-black mb-2">Hashtags</Text>
                   <Controller
@@ -205,6 +189,7 @@ const Create = () => {
                     )}
                   />
                 </View>
+
               </View>
             </ScrollView>
           ) : (
@@ -215,7 +200,7 @@ const Create = () => {
         </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
-  )
-}
+  );
+};
 
-export default Create
+export default Create;

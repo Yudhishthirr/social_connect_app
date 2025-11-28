@@ -5,7 +5,7 @@ import { api } from "@/utils/api";
 import { PostSchemaType } from "@/validation/postSchema";
 
 
-export const UserPost = async (data: PostSchemaType) => {
+export const createPost = async (data: PostSchemaType) => {
     const formData = new FormData();
   
     formData.append("title", data.title);
@@ -25,7 +25,26 @@ export const UserPost = async (data: PostSchemaType) => {
     return res.data;
 };
 
-export const getAllPosts = async()=>{
-  const res = await api.post(ApiEndpoint.posts.getPosts);
-  return res.data; 
+
+// export const getAllPosts = async ({ pageParam }: { pageParam: number }) => {
+//   const res = await api.post(ApiEndpoint.posts.getPosts, {
+//     page: pageParam,
+//   });
+//   return res.data;
+// };
+// services/postService.ts
+export const getAllPosts = async ({ pageParam = 1 }) => {
+  const res = await api.get(`/posts/get-posts?page=${pageParam}`);
+
+  return {
+    posts: res.data.posts,      // array
+    nextPage: res.data.nextPage, // number
+    hasMore: res.data.hasMore,   // boolean
+  };
+};
+
+
+export const likePost = async (postId: string) => {
+  const res = await api.post(ApiEndpoint.like.togglePost(postId));
+  return res.data;
 }

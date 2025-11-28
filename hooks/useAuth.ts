@@ -5,6 +5,10 @@ import { LoginSchemaType, RegisterSchemaType } from "@/validation/authSchema";
 import * as SecureStore from "expo-secure-store";
 import { useDispatch } from "react-redux";
 
+import { getCurrentUser } from '@/services/authService';
+import { useQuery } from '@tanstack/react-query';
+
+
 export function useAuth() {
   const dispatch = useDispatch();
 
@@ -87,4 +91,13 @@ export function useAuth() {
   
 
   return { login, register, logoutUserhook };
+}
+
+
+export function useCurrentUser() {
+  return useQuery({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+    staleTime: 1000 * 60 * 5, // 5 min
+  });
 }

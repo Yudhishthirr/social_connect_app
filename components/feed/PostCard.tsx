@@ -1,111 +1,115 @@
+import { icons } from "@/constants/icons";
+import { useLikePost } from "@/hooks/usePosts";
 import React from "react";
 import {
-  Image,
-  ImageSourcePropType,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constants/colors";
 
 interface PostCardProps {
-  username: string;
-  location?: string;
-  avatar: ImageSourcePropType;
-  media: ImageSourcePropType;
-  likedBy: string;
-  likes: number;
-  caption: string;
-  slidesCount?: number;
-  activeSlide?: number;
-  verified?: boolean;
-  timeAgo?: string;
+  _id: string;
+  title: string;
+  postUrl: string;
+  createdAt: string;
+  likeCount: number;
+  commentCount: number;
+
+  user: {
+    _id: string;
+    username: string;
+    fullName: string;
+    avatar?: string;
+  };
+
+  isLiked?: boolean; // optional from optimistic update
 }
 
-const formatLikes = (count: number) =>
-  count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
 const PostCard: React.FC<PostCardProps> = ({
-  username,
-  location,
-  avatar,
-  media,
-  likedBy,
-  likes,
-  caption,
-  slidesCount = 1,
-  activeSlide = 1,
-  verified = false,
-  timeAgo,
+  _id,
+  title,
+  postUrl,
+  createdAt,
+  likeCount,
+  commentCount,
+  user,
+  isLiked = false,
 }) => {
+  const likeMutation = useLikePost();
+
   return (
     <View
       className="bg-white mb-5"
-      style={{ borderBottomWidth: 1, borderBottomColor: colors.borderSubtle }}
+      style={{
+        borderBottomWidth: 1,
+        borderBottomColor: colors.borderSubtle,
+      }}
     >
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3">
         <View className="flex-row items-center">
           <View className="h-8 w-8 rounded-full overflow-hidden mr-3">
-            <Image source={avatar} className="h-8 w-8" />
+            <Image
+              source={{ uri: user.avatar }}
+              className="h-8 w-8"
+              resizeMode="cover"
+            />
           </View>
-          <View>
-            <View className="flex-row items-center">
-              <Text className="text-[13px] font-semibold text-black mr-1">
-                {username}
-              </Text>
-              {verified && (
-                <Image
-                  source={require("../../assets/icons/verify.svg")}
-                  className="h-3 w-3"
-                />
-              )}
-            </View>
-            {location && (
-              <Text className="text-[11px] text-neutral-500">{location}</Text>
-            )}
-          </View>
+
+          <Text className="text-[13px] font-semibold text-black">
+            {user.username}
+          </Text>
         </View>
-        <Text className="text-[24px] text-neutral-800 leading-4">⋯</Text>
+
+        <Text className="text-[22px] text-neutral-800 leading-3">⋯</Text>
       </View>
 
-      {/* Image */}
+      {/* Post Image */}
       <View className="w-full aspect-[3/4] bg-neutral-200">
-        <Image source={media} className="w-full h-full" resizeMode="cover" />
-        {slidesCount > 1 && (
-          <View className="absolute right-3 top-3 px-2 py-1 rounded-full bg-black/60">
-            <Text className="text-[11px] text-white">
-              {activeSlide}/{slidesCount}
-            </Text>
-          </View>
-        )}
+        <Image
+          source={{ uri: postUrl }}
+          className="w-full h-full"
+          resizeMode="cover"
+        />
       </View>
 
       {/* Actions */}
       <View className="flex-row items-center justify-between px-4 pt-3 pb-1">
         <View className="flex-row items-center">
-          <TouchableOpacity className="mr-4">
+          <TouchableOpacity
+            className="mr-4"
+            onPress={() => likeMutation.mutate(_id)}
+          >
             <Image
-              source={require("../../assets/icons/heart.png")}
+              source={
+                isLiked
+                  ? icons.heartfull
+                  : icons.heart
+              }
               className="h-6 w-6"
             />
           </TouchableOpacity>
+
           <TouchableOpacity className="mr-4">
             <Image
-              source={require("../../assets/icons/commemts.png")}
+              source={icons.comments}
               className="h-6 w-6"
             />
           </TouchableOpacity>
+
           <TouchableOpacity>
             <Image
-              source={require("../../assets/icons/share.png")}
+              source={icons.share}
               className="h-6 w-6"
             />
           </TouchableOpacity>
         </View>
+
         <TouchableOpacity>
           <Image
-            source={require("../../assets/icons/save.png")}
+            source={icons.save}
             className="h-6 w-6"
           />
         </TouchableOpacity>
@@ -114,25 +118,24 @@ const PostCard: React.FC<PostCardProps> = ({
       {/* Likes */}
       <View className="px-4 pb-1">
         <Text className="text-[13px] font-semibold text-black">
-          Liked by {likedBy} and {formatLikes(likes)} others
+          {likeCount} likes
         </Text>
       </View>
 
       {/* Caption */}
       <View className="px-4 pb-2">
         <Text className="text-[13px] text-black">
-          <Text className="font-semibold">{username} </Text>
-          {caption}
+          <Text className="font-semibold">{user.username} </Text>
+          {title}
         </Text>
       </View>
 
-      {timeAgo && (
-        <View className="px-4 pb-4">
-          <Text className="text-[10px] uppercase text-neutral-500">
-            {timeAgo}
-          </Text>
-        </View>
-      )}
+      {/* Time */}
+      <View className="px-4 pb-4">
+        <Text className="text-[10px] uppercase text-neutral-500">
+          {new Date(createdAt).toDateString()}
+        </Text>
+      </View>
     </View>
   );
 };
