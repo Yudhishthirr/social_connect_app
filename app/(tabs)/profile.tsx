@@ -1,3 +1,4 @@
+import FollowersModal from "@/components/profile/followerslist";
 import { useAuth } from "@/hooks/useAuth";
 import { getCurrentUser } from "@/services/authService";
 import { RootState } from "@/store";
@@ -5,8 +6,8 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  FlatList,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -22,161 +23,183 @@ export interface ProfileProps {
   followersCount: number;
   followingCount: number;
   fullName: string;
-  bio?:string;
-  posts: any[]; // or define a PostType if you have one
+  bio?: string;
+  posts: {
+    title: string;
+    postUrl: string;
+    createdAt: string;
+  }[];
+  followersList: {
+    _id: string;
+    username: string;
+    avatar?: string;
+  }[];
+  followingList: {
+    _id: string;
+    username: string;
+    avatar?: string;
+  }[];
   postsCount: number;
   username: string;
 }
 
-const STORY_HIGHLIGHTS = [
-  { id: "new", label: "New", isNew: true },
-  {
-    id: "friends",
-    label: "Friends",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
-  },
-  {
-    id: "sport",
-    label: "Sport",
-    image: "https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf",
-  },
-  {
-    id: "design",
-    label: "Design",
-    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-  },
-];
-
-const GRID_POSTS = [
-  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
-  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
-  "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-  "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
-  "https://images.unsplash.com/photo-1500534623283-312aade485b7",
-  "https://images.unsplash.com/photo-1500534314218-258312053fbf",
-  "https://images.unsplash.com/photo-1470246973918-29a93221c455",
-  "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a",
-  "https://images.unsplash.com/photo-1416339442236-8ceb164046f8",
-];
-
 const ProfileScreen = () => {
   const router = useRouter();
   const [profile, setProfile] = useState<ProfileProps | null>(null);
-
+  const [modalType, setModalType] = useState<"followers" | "following" | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("this is the user information form the redux state");
-  console.log(user)
+  const { logoutUserhook } = useAuth();
 
-  const {logoutUserhook, } = useAuth();
-  
-  function logoutCurrentUser(){
+  function logoutCurrentUser() {
     logoutUserhook();
     router.push("/(auth)/login");
   }
 
   async function loadUserProfile() {
     const res = await getCurrentUser();
-    console.log("Loaded profile:", res);
-  
+    console.log("Loaded profile API response:", res);
     if (res?.data) {
       setProfile(res.data);
     }
   }
-  
+
   useEffect(() => {
+    if (!user) {
+      router.replace("/(auth)/login");
+    }
     loadUserProfile();
-  }, []);
-  
+  }, [user]);
+
+  const renderHeader = () => (
+    <View style={styles.content}>
+      {/* ---------- PROFILE IMAGE + STATS ---------- */}
+      <View style={styles.profileRow}>
+        <View style={styles.avatarWrapper}>
+          <View style={styles.avatarOuterRing}>
+            <View style={styles.avatarInnerRing}>
+              <Image
+                source={{ uri: profile?.avatar }}
+                style={styles.avatarImage}
+              />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.statsWrapper}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{profile?.postsCount}</Text>
+            <Text style={styles.statLabel}>Posts</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => {
+              if (profile?.followersCount! > 0) {
+                setModalType("followers");
+              }
+            }}
+          >
+            <Text style={styles.statValue}>{profile?.followersCount}</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => {
+              if (profile?.followingCount! > 0) {
+                setModalType("following");
+              }
+            }}
+          >
+            <Text style={styles.statValue}>{profile?.followingCount}</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* ---------- BIO SECTION ---------- */}
+      <View style={styles.bioSection}>
+        <Text style={styles.name}>{profile?.fullName}</Text>
+        <Text style={styles.bioText}>{profile?.bio}</Text>
+        <Text style={styles.handle}>@{profile?.username}</Text>
+      </View>
+
+      {/* ---------- EDIT BUTTON ---------- */}
+      <TouchableOpacity style={styles.editButton}>
+        <Text style={styles.editButtonText}>Edit Profile</Text>
+      </TouchableOpacity>
+
+      <View style={styles.segmentControl} />
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <View style={styles.usernameWrapper}>
-            <Ionicons name="lock-closed" size={14} color="#262626" />
-            <Text style={styles.username}>{profile?.username}</Text>
-            <Ionicons name="chevron-down" size={16} color="#262626" />
-          </View>
-
-          <View style={styles.headerActions}>
-            <Feather name="plus-square" size={24} color="#262626" />
-            <Feather name="menu" size={26} color="#262626" style={styles.menuIcon} />
-          </View>
-        </View>
-
-        <View style={styles.profileRow}>
-          <View style={styles.avatarWrapper}>
-            <View style={styles.avatarOuterRing}>
-              <View style={styles.avatarInnerRing}>
-                <Image
-                  source={{ uri: profile?.avatar }}
-                  style={styles.avatarImage}
-                />
+      <FlatList
+        ListHeaderComponent={
+          <>
+            {/* ---------- HEADER ---------- */}
+            <View style={styles.header}>
+              <View style={styles.usernameWrapper}>
+                <Text style={styles.username}>{profile?.username}</Text>
+                <Ionicons name="chevron-down" size={16} color="#262626" />
+              </View>
+              <View style={styles.headerActions}>
+                <TouchableOpacity>
+                  <Feather name="plus-square" size={24} color="#262626" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={logoutCurrentUser}>
+                  <Feather
+                    name="menu"
+                    size={24}
+                    color="#262626"
+                    style={styles.menuIcon}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
-          </View>
-
-          <View style={styles.statsWrapper}>
-            <Text style={styles.statValue}>{profile?.postsCount}</Text>
-            <Text style={styles.statValue}>{profile?.followersCount}</Text>
-            <Text style={styles.statValue}>{profile?.followingCount}</Text>
-          </View>
-        </View>
-
-        <View style={styles.bioSection}>
-          <Text style={styles.name}>{profile?.fullName}</Text>
-          <Text style={styles.bioText}>
-           {profile?.bio}
-          </Text>
-          <Text style={styles.handle}>@demo</Text>
-          {/* <Text style={styles.bioSubtext}>Everything is designed.</Text> */}
-        </View>
-
-        <TouchableOpacity 
-          onPress={logoutCurrentUser}
-          
-          activeOpacity={0.8} 
-          style={styles.editButton}
-        >
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <View style={styles.highlightsRow}>
-          {STORY_HIGHLIGHTS.map((highlight) => (
-            <View key={highlight.id} style={styles.highlightItem}>
-              <View style={styles.highlightOuterRing}>
-                {highlight.isNew ? (
-                  <View style={styles.newHighlight}>
-                    <Feather name="plus" size={20} color="#262626" />
-                  </View>
-                ) : (
-                  <View style={styles.highlightImageWrapper}>
-                    <Image
-                      source={{ uri: highlight.image }}
-                      style={styles.highlightImage}
-                    />
-                  </View>
-                )}
-              </View>
-              <Text style={styles.highlightLabel}>{highlight.label}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.segmentControl}>
-          <Feather name="grid" size={20} color="#262626" />
-          <Feather name="user" size={20} color="#C7C7CC" />
-        </View>
-
-        <View style={styles.postsGrid}>
-          {GRID_POSTS.map((uri) => (
+            {renderHeader()}
+          </>
+        }
+        data={profile?.posts || []}
+        keyExtractor={(item, index) => index.toString()}
+        numColumns={3}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.postImage}
+            onPress={() => {
+              console.log("Clicked post:", item);
+            }}
+          >
             <Image
-              key={uri}
-              source={{ uri }}
-              style={styles.postImage}
+              source={{ uri: item.postUrl }}
+              style={{ width: "100%", height: "100%" }}
               resizeMode="cover"
             />
-          ))}
-        </View>
-      </ScrollView>
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+      />
+
+      {/* {modalType !== null && (
+        <FollowersModal
+          visible={true}
+          modalType={modalType}
+          followersList={profile?.followersList || []}
+          followingList={profile?.followingList || []}
+          onClose={() => setModalType(null)}
+        />
+      )} */}
+        {modalType !== null && (
+        <FollowersModal
+          visible={true}
+          title={modalType === "followers" ? "Followers" : "Following"}
+          followersList={
+            modalType === "followers"
+              ? profile?.followersList
+              : profile?.followingList
+          }
+          onClose={() => setModalType(null)}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -189,14 +212,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   content: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
+    paddingBottom: 16,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   usernameWrapper: {
     flexDirection: "row",
@@ -249,9 +272,9 @@ const styles = StyleSheet.create({
     borderRadius: 37,
   },
   statsWrapper: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
+    flex: 1,
   },
   statItem: {
     alignItems: "center",
@@ -264,7 +287,6 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 13,
     color: "#8E8E93",
-    marginTop: 2,
   },
   bioSection: {
     marginTop: 12,
@@ -282,11 +304,7 @@ const styles = StyleSheet.create({
   },
   handle: {
     color: "#00376B",
-  },
-  bioSubtext: {
-    marginTop: 2,
-    fontSize: 13,
-    color: "#262626",
+    marginTop: 4,
   },
   editButton: {
     marginTop: 14,
@@ -301,63 +319,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#262626",
   },
-  highlightsRow: {
-    flexDirection: "row",
-    marginTop: 18,
-    gap: 18,
-  },
-  highlightItem: {
-    alignItems: "center",
-    width: 70,
-  },
-  highlightOuterRing: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    borderWidth: 1,
-    borderColor: "#DBDBDB",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  newHighlight: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    borderWidth: 1,
-    borderColor: "#DBDBDB",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FAFAFA",
-  },
-  highlightImageWrapper: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    overflow: "hidden",
-  },
-  highlightImage: {
-    width: "100%",
-    height: "100%",
-  },
-  highlightLabel: {
-    marginTop: 6,
-    fontSize: 12,
-    color: "#262626",
-  },
   segmentControl: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 32,
-    paddingVertical: 12,
     borderBottomWidth: 1,
     borderColor: "#EFEFEF",
     marginTop: 24,
-  },
-  postsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: -1,
-    marginTop: 2,
+    marginBottom: 2,
   },
   postImage: {
     width: "33.3333%",
