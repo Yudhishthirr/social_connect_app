@@ -8,9 +8,9 @@ export const getComments = async (postId: string) => {
 };
 
 // Add a comment to a post
-export const addComment = async (postId: string, content: string) => {
+export const addComment = async (postId: string, comment: string) => {
   const res = await api.post(ApiEndpoint.comments.add(postId), {
-    content,
+    comment,
   });
   return res.data;
 };

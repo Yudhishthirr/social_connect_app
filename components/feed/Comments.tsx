@@ -1,7 +1,7 @@
 import { colors } from "@/constants/colors";
 import { icons } from "@/constants/icons";
 import { useAddComment, useComments, useLikeComment } from "@/hooks/useComments";
-import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   FlatList,
@@ -12,73 +12,73 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
-
 interface Comment {
-    _id: string;
-    content: string;
-    post: string;
-    likeCount: number;
-    isLiked: boolean;
-    createdAt: string;
-    ownerData: {
-      username: string;
-      avatar: string;
-    };
-  }
-  
+  _id: string;
+  content: string;
+  post: string;
+  likeCount: number;
+  isLiked: boolean;
+  createdAt: string;
+  ownerData: {
+    username: string;
+    avatar: string;
+  };
+}
 
 interface CommentsProps {
   visible: boolean;
+  postId: string;
   onClose: () => void;
-  onload: (postId: string) => void;
 }
 
-const Comments = ({
-  visible,
-  onClose,
-  onload
-}: CommentsProps) => {
+interface CommentFormData {
+  content: string;
+}
 
-  console.log("this is the postId",postId);
-  const [commentText, setCommentText] = useState("");
+const Comments = ({ visible, postId, onClose }: CommentsProps) => {
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<CommentFormData>({
+    defaultValues: {
+      content: ""
+    }
+  });
+
+  // Fetch comments by post ID
   const { data, isLoading, refetch } = useComments(postId);
+ 
   const addCommentMutation = useAddComment();
   const likeCommentMutation = useLikeComment();
 
-  console.log(visible)
-  useEffect(() => {
-    if (visible) {
-      refetch();   // Load comments only when opened
-    }
-  }, [visible]);
+  // SAFELY extract comments
+  const comments: Comment[] = data?.data || [];
+  console.log("comments:", comments);
 
-  
-  const comments: Comment[] = data || [];
-  console.log(comments)
-
- 
-  const handleAddComment = async () => {
-    if (!commentText.trim()) return;
+  // Add new comment
+  const onSubmit = async (formData: CommentFormData) => {
+    if (!formData.content.trim()) return;
 
     try {
       await addCommentMutation.mutateAsync({
         postId,
-        content: commentText.trim(),
+        content: formData.content.trim(),
       });
-      setCommentText("");
+
+      reset(); // Clear form after successful submission
+      refetch(); // refresh after posting
     } catch (error) {
-      console.error("Failed to add comment:", error);
+      console.error("❌ Failed to add comment:", error);
     }
   };
 
+  // Like/unlike a comment
   const handleLikeComment = (commentId: string) => {
-    likeCommentMutation.mutate(commentId);
+    likeCommentMutation.mutate(commentId, {
+      onSuccess: () => refetch(),
+    });
   };
 
- 
   return (
     <Modal
       visible={visible}
@@ -105,7 +105,7 @@ const Comments = ({
         {isLoading ? (
           <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" />
-          </View>
+          </View> 
         ) : comments.length === 0 ? (
           <View className="flex-1 justify-center items-center px-4">
             <Text className="text-neutral-500 text-center">
@@ -136,12 +136,10 @@ const Comments = ({
                     <Text className="text-[13px] font-semibold text-black mr-2">
                       {item.ownerData.username}
                     </Text>
-                    <Text className="text-[13px] text-black flex-1">
-                      {item.content}
-                    </Text>
+                    <Text className="text-[13px] text-black flex-1">{item.content}</Text>
                   </View>
 
-                  {/* Comment Actions */}
+                  {/* Actions */}
                   <View className="flex-row items-center mt-2">
                     <Text className="text-[12px] text-neutral-500 mr-4">
                       {new Date(item.createdAt).toLocaleDateString("en-US", {
@@ -149,11 +147,13 @@ const Comments = ({
                         day: "numeric",
                       })}
                     </Text>
+
                     {item.likeCount > 0 && (
                       <Text className="text-[12px] text-neutral-500 mr-4">
                         {item.likeCount} {item.likeCount === 1 ? "like" : "likes"}
                       </Text>
                     )}
+
                     <TouchableOpacity
                       onPress={() => handleLikeComment(item._id)}
                       disabled={likeCommentMutation.isPending}
@@ -165,7 +165,7 @@ const Comments = ({
                   </View>
                 </View>
 
-                {/* Like Button (Sidebar) */}
+                {/* Like Button */}
                 <TouchableOpacity
                   className="ml-3 justify-start pt-1"
                   onPress={() => handleLikeComment(item._id)}
@@ -189,47 +189,66 @@ const Comments = ({
           style={{ borderTopColor: colors.borderSubtle }}
         >
           <View className="flex-row items-center">
-            {/* User Avatar in Input */}
-            {/* {postUser?.avatar && (
-              <View className="h-8 w-8 rounded-full overflow-hidden mr-3">
-                <Image
-                  source={{ uri: postUser.avatar }}
-                  className="h-8 w-8"
-                  resizeMode="cover"
-                />
-              </View>
-            )} */}
-
-            {/* Text Input */}
-            <View className="flex-1 border rounded-full px-4 py-2 mr-2" style={{ borderColor: colors.borderSubtle }}>
-              <TextInput
-                placeholder="Add a comment..."
-                placeholderTextColor={colors.textMuted}
-                value={commentText}
-                onChangeText={setCommentText}
-                className="text-[14px] text-black"
-                multiline
-                maxLength={2200}
+            <View
+              className="flex-1 border rounded-full px-4 py-2 mr-2"
+              style={{ borderColor: colors.borderSubtle }}
+            >
+              <Controller
+                control={control}
+                name="content"
+                rules={{
+                  required: "Comment cannot be empty",
+                  maxLength: {
+                    value: 2200,
+                    message: "Comment is too long"
+                  },
+                  validate: (value) => value.trim().length > 0 || "Comment cannot be empty"
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    placeholder="Add a comment..."
+                    placeholderTextColor={colors.textMuted}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    onSubmitEditing={handleSubmit(onSubmit)}
+                    className="text-[14px] text-black"
+                    multiline
+                    maxLength={2200}
+                  />
+                )}
               />
             </View>
 
-            {/* Post Button */}
-            <TouchableOpacity
-              onPress={handleAddComment}
-              disabled={!commentText.trim() || addCommentMutation.isPending}
-              className="px-2"
-            >
-              <Text
-                className={`text-[14px] font-semibold ${
-                  commentText.trim() && !addCommentMutation.isPending
-                    ? "text-[#0095f6]"
-                    : "text-neutral-400"
-                }`}
-              >
-                {addCommentMutation.isPending ? "Posting..." : "Post"}
-              </Text>
-            </TouchableOpacity>
+            <Controller
+              control={control}
+              name="content"
+              render={({ field: { value } }) => (
+                <TouchableOpacity
+                  onPress={handleSubmit(onSubmit)}
+                  disabled={!value.trim() || addCommentMutation.isPending}
+                  className="px-2"
+                >
+                  <Text
+                    className={`text-[14px] font-semibold ${
+                      value.trim() && !addCommentMutation.isPending
+                        ? "text-[#0095f6]"
+                        : "text-neutral-400"
+                    }`}
+                  >
+                    {addCommentMutation.isPending ? "Posting..." : "Post"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
           </View>
+          
+          {/* Error Message */}
+          {errors.content && (
+            <Text className="text-red-500 text-[12px] mt-2 px-4">
+              {errors.content.message}
+            </Text>
+          )}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -237,4 +256,3 @@ const Comments = ({
 };
 
 export default Comments;
-

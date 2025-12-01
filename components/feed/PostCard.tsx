@@ -144,11 +144,13 @@ const PostCard = ({
       </View>
 
       {/* Comments Modal */}
-      <Comments
-        visible={showComments}
-        onClose={() => setShowComments(false)}
-        onload={() => loadComments(_id)}
-      />
+      {showComments && (
+        <Comments
+          visible={showComments}
+          postId={_id}
+          onClose={() => setShowComments(false)}
+        />
+      )}
     </View>
   );
 };
