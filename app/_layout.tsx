@@ -31,7 +31,8 @@ function RootLayoutContent() {
 
       
       const res = await getCurrentUser();
-      console.log("get user called from the root page");
+
+      console.log("get user called from the root page",res);
 
       if (res.success) {
         dispatch(

@@ -1,13 +1,14 @@
 import { icons } from "@/constants/icons";
 import { useLikePost } from "@/hooks/usePosts";
-import React from "react";
+import { useState } from "react";
 import {
-    Image,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { colors } from "../../constants/colors";
+import Comments from "./Comments";
 
 interface PostCardProps {
   _id: string;
@@ -27,7 +28,7 @@ interface PostCardProps {
   isLiked?: boolean; // optional from optimistic update
 }
 
-const PostCard: React.FC<PostCardProps> = ({
+const PostCard = ({
   _id,
   title,
   postUrl,
@@ -36,9 +37,10 @@ const PostCard: React.FC<PostCardProps> = ({
   commentCount,
   user,
   isLiked = false,
-}) => {
+}:PostCardProps) => {
   const likeMutation = useLikePost();
-
+  const [showComments, setShowComments] = useState(false);
+ 
   return (
     <View
       className="bg-white mb-5"
@@ -81,6 +83,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <TouchableOpacity
             className="mr-4"
             onPress={() => likeMutation.mutate(_id)}
+            
           >
             <Image
               source={
@@ -92,7 +95,10 @@ const PostCard: React.FC<PostCardProps> = ({
             />
           </TouchableOpacity>
 
-          <TouchableOpacity className="mr-4">
+          <TouchableOpacity 
+            className="mr-4"
+            onPress={() => setShowComments(true)}
+          >
             <Image
               source={icons.comments}
               className="h-6 w-6"
@@ -136,6 +142,13 @@ const PostCard: React.FC<PostCardProps> = ({
           {new Date(createdAt).toDateString()}
         </Text>
       </View>
+
+      {/* Comments Modal */}
+      <Comments
+        visible={showComments}
+        onClose={() => setShowComments(false)}
+        onload={() => loadComments(_id)}
+      />
     </View>
   );
 };

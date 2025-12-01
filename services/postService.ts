@@ -45,6 +45,6 @@ export const getAllPosts = async ({ pageParam = 1 }) => {
 
 
 export const likePost = async (postId: string) => {
-  const res = await api.post(ApiEndpoint.like.togglePost(postId));
+  const res = await api.get(ApiEndpoint.like.togglePost(postId));
   return res.data;
 }
