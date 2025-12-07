@@ -26,13 +26,6 @@ export const createPost = async (data: PostSchemaType) => {
 };
 
 
-// export const getAllPosts = async ({ pageParam }: { pageParam: number }) => {
-//   const res = await api.post(ApiEndpoint.posts.getPosts, {
-//     page: pageParam,
-//   });
-//   return res.data;
-// };
-// services/postService.ts
 export const getAllPosts = async ({ pageParam = 1 }) => {
   const res = await api.get(`/posts/get-posts?page=${pageParam}`);
 

@@ -1,4 +1,5 @@
-import { API_BASE_URL as BASE } from "@/utils/api";
+// import { API_BASE_URL as BASE } from "@/utils/api";
+import { API_BASE_URL as BASE } from "@/constants/constant";
 
 const ApiEndpoint = {
   users: {
@@ -33,11 +34,17 @@ const ApiEndpoint = {
 
   story: {
     add: `${BASE}/story/add-story`,
+    getallStories: `${BASE}/story/get-stories`,
     view: (storyId: string) => `${BASE}/story/view-story/${storyId}`,
     react: (storyId: string) => `${BASE}/story/react-story/${storyId}`,
     comment: (storyId: string) => `${BASE}/story/comment-story/${storyId}`,
     delete: (storyId: string) => `${BASE}/story/delete-story/${storyId}`,
   },
+
+  messages:{
+    send: `${BASE}/messages/send`,
+    history: (userId: string) => `${BASE}/messages/history/${userId}`
+  }
 };
 
 export { ApiEndpoint };

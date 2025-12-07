@@ -1,3 +1,5 @@
+import InstagramLogo from '../assets/icons/InstagramLogo.png';
+import camera from '../assets/icons/camera.png';
 import comments from '../assets/icons/commemts.png';
 import heart from '../assets/icons/heart.png';
 import heartfull from '../assets/icons/heartfull.png';
@@ -10,6 +12,8 @@ import save from '../assets/icons/post2.png';
 import search from '../assets/icons/search.png';
 import search2 from '../assets/icons/search2.png';
 import share from '../assets/icons/share.png';
+
+
 export const icons = {
     home,
     person,
@@ -22,5 +26,7 @@ export const icons = {
     heart,
     comments,
     share,
-    heartfull
+    heartfull,
+    camera,
+    InstagramLogo
 }

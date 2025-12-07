@@ -70,12 +70,6 @@ export function useAuth() {
         await SecureStore.deleteItemAsync("accessToken");
         await SecureStore.deleteItemAsync("refreshToken");
   
-        // const accessCheck = await SecureStore.getItemAsync("accessToken");
-        // const refreshCheck = await SecureStore.getItemAsync("refreshToken");
-  
-        // console.log("Access Token deleted:", accessCheck === null);
-        // console.log("Refresh Token deleted:", refreshCheck === null);
-
         dispatch(logout()); // redux clear user
       }
   

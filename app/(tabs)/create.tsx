@@ -1,5 +1,5 @@
 import { Loader } from '@/components/common/Loader';
-import { ImagePickerExample } from '@/components/common/PickImage';
+import { useImagePicker } from '@/hooks/useImagePicker';
 import { useCreatePost } from '@/hooks/usePosts';
 import { postSchema, PostSchemaType } from '@/validation/postSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,18 +7,27 @@ import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const Create = () => {
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [showPicker, setShowPicker] = useState(true);
   const isFocusedRef = useRef(false);
 
-  // React Query mutation
+  const { pickImage } = useImagePicker();
   const { mutateAsync: createPostMutation, isPending } = useCreatePost();
 
-  // React Hook Form
   const {
     control,
     handleSubmit,
@@ -34,13 +43,22 @@ const Create = () => {
     }
   });
 
+  // Open picker logic
+  const openPicker = async () => {
+    isFocusedRef.current = true;
+    const uri = await pickImage();
+
+    if (uri) {
+      handleImageSelected(uri);
+    }
+  };
+
+  // Auto-open picker when screen focused
   useFocusEffect(
     useCallback(() => {
       if (!selectedImage && !isFocusedRef.current) {
-        isFocusedRef.current = true;
-        setShowPicker(true);
+        openPicker();
       }
-
       return () => {
         isFocusedRef.current = false;
       };
@@ -49,16 +67,17 @@ const Create = () => {
 
   const handleImageSelected = (uri: string) => {
     setSelectedImage(uri);
-    setShowPicker(false);
-    isFocusedRef.current = false;
     setValue('postImage', uri);
+    isFocusedRef.current = false;
   };
+ 
+  
 
   const handleReset = () => {
     setSelectedImage(null);
     reset();
     isFocusedRef.current = false;
-    setShowPicker(true);
+    openPicker(); // re-open image picker after resetting
   };
 
   const onSubmit = async (data: PostSchemaType) => {
@@ -82,18 +101,12 @@ const Create = () => {
   return (
     <SafeAreaProvider>
       {isPending && <Loader loadingText="Uploading..." />}
+      {/* <SafeAreaView className="flex-1 bg-white" edges={['top']}> */}
       <SafeAreaView className="flex-1 bg-white" edges={['top']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
         >
-          {showPicker && (
-            <ImagePickerExample
-              onImageSelected={handleImageSelected}
-              onCancel={() => setShowPicker(false)}
-              autoOpen={true}
-            />
-          )}
 
           {selectedImage ? (
             <ScrollView
@@ -101,6 +114,7 @@ const Create = () => {
               contentContainerStyle={{ paddingBottom: 20 }}
               keyboardShouldPersistTaps="handled"
             >
+
               {/* Header */}
               <View className="flex-row items-center justify-between px-4 py-3 border-b border-neutral-200">
                 <TouchableOpacity onPress={handleReset} className="p-2">

@@ -1,10 +1,10 @@
 import FollowersModal from "@/components/profile/followerslist";
-import { useAuth } from "@/hooks/useAuth";
-import { getCurrentUser } from "@/services/authService";
+import { useAuth, useCurrentUser } from "@/hooks/useAuth";
 import { RootState } from "@/store";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+
 import {
   FlatList,
   Image,
@@ -16,59 +16,43 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
-export interface ProfileProps {
-  _id: string;
-  avatar: string;
-  email: string;
-  followersCount: number;
-  followingCount: number;
-  fullName: string;
-  bio?: string;
-  posts: {
-    title: string;
-    postUrl: string;
-    createdAt: string;
-  }[];
-  followersList: {
-    _id: string;
-    username: string;
-    avatar?: string;
-  }[];
-  followingList: {
-    _id: string;
-    username: string;
-    avatar?: string;
-  }[];
-  postsCount: number;
-  username: string;
-}
+
 
 const ProfileScreen = () => {
+
   const router = useRouter();
-  const [profile, setProfile] = useState<ProfileProps | null>(null);
   const [modalType, setModalType] = useState<"followers" | "following" | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
   const { logoutUserhook } = useAuth();
+  
+  const { data, isLoading, isError } = useCurrentUser();
+  const profile = data?.data;
+
 
   function logoutCurrentUser() {
     logoutUserhook();
     router.push("/(auth)/login");
   }
 
-  async function loadUserProfile() {
-    const res = await getCurrentUser();
-    console.log("Loaded profile API response:", res);
-    if (res?.data) {
-      setProfile(res.data);
-    }
+  useEffect(() => {
+    if (!user) router.replace("/(auth)/login");
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>Loading...</Text>
+      </View>
+    );
   }
 
-  useEffect(() => {
-    if (!user) {
-      router.replace("/(auth)/login");
-    }
-    loadUserProfile();
-  }, [user]);
+  if (isError || !profile) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>Failed to load profile</Text>
+      </View>
+    );
+  }
 
   const renderHeader = () => (
     <View style={styles.content}>
@@ -179,16 +163,8 @@ const ProfileScreen = () => {
         contentContainerStyle={{ paddingHorizontal: 16 }}
       />
 
-      {/* {modalType !== null && (
-        <FollowersModal
-          visible={true}
-          modalType={modalType}
-          followersList={profile?.followersList || []}
-          followingList={profile?.followingList || []}
-          onClose={() => setModalType(null)}
-        />
-      )} */}
-        {modalType !== null && (
+      
+      {modalType !== null && (
         <FollowersModal
           visible={true}
           title={modalType === "followers" ? "Followers" : "Following"}

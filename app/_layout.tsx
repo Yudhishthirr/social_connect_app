@@ -66,6 +66,7 @@ function RootLayoutContent() {
       {isAuthenticated ? (
       <>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="chat" />
       </>
        
       ) : (
