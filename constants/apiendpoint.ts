@@ -6,6 +6,7 @@ const ApiEndpoint = {
     login: `${BASE}/users/login`,
     register: `${BASE}/users/register`,
     currentUser: `${BASE}/users/get-user-info`,
+    getUserById: (id: string) =>`${BASE}/users/get-user-by-id/${id}`,
     logout: `${BASE}/users/logout`,
   },
 

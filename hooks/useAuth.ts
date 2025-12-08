@@ -1,5 +1,5 @@
 // src/hooks/useAuth.ts
-import { loginUser, logoutUser, registerUser } from "@/services/authService";
+import { getUserById, loginUser, logoutUser, registerUser } from "@/services/authService";
 import { logout, setCredentials } from "@/store/slices/authSlice";
 import { LoginSchemaType, RegisterSchemaType } from "@/validation/authSchema";
 import * as SecureStore from "expo-secure-store";
@@ -93,5 +93,14 @@ export function useCurrentUser() {
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
     staleTime: 1000 * 60 * 5, // 5 min
+  });
+}
+
+export function useUserById(id: string) {
+  return useQuery({
+    queryKey: ["userById", id],
+    queryFn: () => getUserById(id),
+    enabled: !!id,            // prevents running when id is empty
+    staleTime: 1000 * 60 * 5, // keep cached 5 minutes
   });
 }

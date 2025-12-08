@@ -19,6 +19,13 @@ export const getCurrentUser = async () => {
   return res.data;
 };
 
+export const getUserById = async (id:string) => {
+  const res = await api.get(ApiEndpoint.users.getUserById(id));
+  return res.data;
+};
+
+
+
 export const logoutUser = async () => {
   const res = await api.get(ApiEndpoint.users.logout);
   return res.data;

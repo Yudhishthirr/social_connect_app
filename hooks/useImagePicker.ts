@@ -13,7 +13,7 @@ export function useImagePicker() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
-      aspect: [1, 1],
+      aspect: [9, 16],
       quality: 1,
     });
 

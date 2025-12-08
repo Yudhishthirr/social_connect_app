@@ -84,7 +84,9 @@ export default function RootLayout() {
     <Provider store={store}>
        <QueryClientProvider client={queryClient}>
           <StatusBar style="dark" />
-          <RootLayoutContent />
+          {/* <GestureHandlerRootView style={{ flex: 1 }}> */}
+              <RootLayoutContent />
+          {/* </GestureHandlerRootView> */}
       </QueryClientProvider>
     </Provider>
   );

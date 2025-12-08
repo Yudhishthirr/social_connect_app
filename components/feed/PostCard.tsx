@@ -1,5 +1,6 @@
 import { icons } from "@/constants/icons";
 import { useLikePost } from "@/hooks/usePosts";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Image,
@@ -40,7 +41,8 @@ const PostCard = ({
 }:PostCardProps) => {
   const likeMutation = useLikePost();
   const [showComments, setShowComments] = useState(false);
- 
+  
+  const router = useRouter();
   return (
     <View
       className="bg-white mb-5"
@@ -51,7 +53,7 @@ const PostCard = ({
     >
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3">
-        <View className="flex-row items-center">
+        {/* <View className="flex-row items-center">
           <View className="h-8 w-8 rounded-full overflow-hidden mr-3">
             <Image
               source={{ uri: user.avatar }}
@@ -63,7 +65,29 @@ const PostCard = ({
           <Text className="text-[13px] font-semibold text-black">
             {user.username}
           </Text>
-        </View>
+        </View> */}
+
+          <TouchableOpacity
+            className="flex-row items-center"
+            onPress={() =>
+              router.push({
+                pathname: "/profile/[userId]",
+                params: { userId: user._id },
+              })
+            }
+          >
+          <View className="h-8 w-8 rounded-full overflow-hidden mr-3">
+            <Image
+              source={{ uri: user.avatar }}
+              className="h-8 w-8"
+              resizeMode="cover"
+            />
+          </View>
+
+          <Text className="text-[13px] font-semibold text-black">
+            {user.username}
+          </Text>
+        </TouchableOpacity>
 
         <Text className="text-[22px] text-neutral-800 leading-3">⋯</Text>
       </View>

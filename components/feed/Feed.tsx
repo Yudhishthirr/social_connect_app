@@ -1,8 +1,10 @@
+import { useImagePicker } from "@/hooks/useImagePicker";
 import { usePost } from "@/hooks/usePosts";
-import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 import StoriesStrip from "../stories/StoriesStrip";
+import StoryEditor from "../stories/story-editor";
+// import StoryEditor from "@/components/stories/editor/StoryEditor";
 import PostCard from "./PostCard";
 
 const Feed = () => {
@@ -19,22 +21,7 @@ const Feed = () => {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // 👈 controls editor
 
-  const pickImage = async () => {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      alert("Permission required");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri); // 👈 open editor
-    }
-  };
+  const { pickImage } = useImagePicker(); // 👈 FIXED
 
   if (isLoading)
     return (
@@ -59,7 +46,15 @@ const Feed = () => {
         data={posts}
         keyExtractor={(item) => item._id}
         ListHeaderComponent={
-          <StoriesStrip onAddStory={pickImage} /> // 👈 pass handler to stories
+          // <StoriesStrip onAddStory={pickImage} /> // 👈 pass handler to stories
+        <StoriesStrip
+            onAddStory={async () => {
+              const result = await pickImage();  // get image
+              if (result) {
+                setSelectedImage(result);        // open StoryEditor
+              }
+            }}
+          />
         }
         renderItem={({ item }) => <PostCard {...item} />}
         // Infinite scroll
@@ -83,12 +78,12 @@ const Feed = () => {
       />
 
       {/* 👇 Full-screen editor overlay */}
-      {/* {selectedImage && (
+      {selectedImage && (
         <StoryEditor
           image={selectedImage}
           onClose={() => setSelectedImage(null)}
         />
-      )} */}
+      )}
     </>
   );
 };
