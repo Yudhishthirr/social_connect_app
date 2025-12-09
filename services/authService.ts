@@ -5,9 +5,28 @@ import { LoginSchemaType, RegisterSchemaType } from "@/validation/authSchema";
 
 export const registerUser = async (data: RegisterSchemaType) => {
   
-  const res = await api.post(ApiEndpoint.users.register, data);
+  const formData = new FormData();
+
+  formData.append("fullName", data.fullName);
+  formData.append("email", data.email);
+  formData.append("username", data.username);
+  formData.append("password", data.password);
+  formData.append("gender", data.gender);
+  formData.append("AvtarImage", {
+    uri: data.AvtarImage,
+    type: "image/jpeg",
+    name: "upload.jpg",
+  }as any);
+
+  const res = await api.post(ApiEndpoint.users.register, formData,{
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return res.data;
 };
+
+
 
 export const loginUser = async (data: LoginSchemaType) => {
   const res = await api.post(ApiEndpoint.users.login, data);

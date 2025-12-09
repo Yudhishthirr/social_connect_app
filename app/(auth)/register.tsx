@@ -1,13 +1,14 @@
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -40,6 +41,8 @@ const Step3Schema = z.object({
 // ----------------------------------
 export default function RegisterScreen() {
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
   const [step, setStep] = useState(1);
 
@@ -50,7 +53,7 @@ export default function RegisterScreen() {
     email: "",
     password: "",
     gender: "",
-    profileImage: "",
+    AvtarImage: "",
   });
 
   const step1Form = useForm({
@@ -78,26 +81,18 @@ export default function RegisterScreen() {
   });
 
   const { pickImage } = useImagePicker();
-  // Pick profile image
-  // const pickImage = async () => {
-  //   const res = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     quality: 0.8,
-  //   });
-
-  //   if (!res.canceled) {
-  //     setOnboardData((prev) => ({
-  //       ...prev,
-  //       profileImage: res.assets[0].uri,
-  //     }));
-  //   }
-  // };
+ 
 
   // FINAL SUBMIT
   const submitFinal = async () => {
+    console.log("onboardData data");
+    console.log(onboardData);
+  
     try {
+      setIsLoading(true);   // 🔥 Start loading
+  
       const result = await registerUser(onboardData);
-
+  
       if (result.success) {
         Alert.alert("Success", "Your account has been created!");
         router.replace("/(auth)/login");
@@ -106,9 +101,11 @@ export default function RegisterScreen() {
       }
     } catch (err: any) {
       Alert.alert("Error", err.message);
+    } finally {
+      setIsLoading(false);  // 🔥 End loading
     }
   };
-
+  
   // ----------------------------------
   // UI STARTS
   // ----------------------------------
@@ -308,7 +305,7 @@ export default function RegisterScreen() {
         ============================================================= */}
         {step === 3 && (
           <View>
-            {["Male", "Female"].map((g) => (
+            {["male", "female"].map((g) => (
               <TouchableOpacity
                 key={g}
                 onPress={() => {
@@ -347,10 +344,18 @@ export default function RegisterScreen() {
         ============================================================= */}
         {step === 4 && (
           <View className="items-center">
-            <TouchableOpacity onPress={pickImage} className="mb-4">
-              {onboardData.profileImage ? (
+            <TouchableOpacity 
+             onPress={async () => {
+              const uri = await pickImage();
+              if (uri) {
+                setOnboardData((prev) => ({ ...prev, AvtarImage: uri }));
+              }
+            }}
+            
+            className="mb-4">
+              {onboardData.AvtarImage ? (
                 <Image
-                  source={{ uri: onboardData.profileImage }}
+                  source={{ uri: onboardData.AvtarImage }}
                   className="h-32 w-32 rounded-full border-4 border-[#3797EF]"
                 />
               ) : (
@@ -367,21 +372,36 @@ export default function RegisterScreen() {
             </Text>
 
             <View className="flex-row justify-between w-full gap-3">
+
               <TouchableOpacity
-                className="flex-1 h-14 border-2 border-neutral-300 rounded-xl items-center justify-center"
-                onPress={() => setStep(3)}
+                className={`flex-1 h-14 border-2 rounded-xl items-center justify-center
+                  ${isLoading ? "border-neutral-200 bg-neutral-100" : "border-neutral-300"}`}
+                onPress={() => !isLoading && setStep(3)}
+                disabled={isLoading}
               >
-                <Text className="font-semibold text-neutral-700">Previous</Text>
+                <Text
+                  className={`font-semibold ${
+                    isLoading ? "text-neutral-400" : "text-neutral-700"
+                  }`}
+                >
+                  Previous
+                </Text>
               </TouchableOpacity>
 
+
+             
               <TouchableOpacity
                 className="flex-1 h-14 bg-[#3797EF] rounded-xl items-center justify-center shadow-sm"
                 onPress={submitFinal}
+                disabled={isLoading}
               >
-                <Text className="text-white font-semibold text-base">
-                  Finish
-                </Text>
+                {isLoading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-semibold text-base">Finish</Text>
+                )}
               </TouchableOpacity>
+
             </View>
           </View>
         )}

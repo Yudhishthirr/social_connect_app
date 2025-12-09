@@ -70,10 +70,7 @@ const LoadUserProfile = ({
             <Feather name="plus-square" size={24} color="#262626" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() =>
-              router.push({
-                pathname: "/settings/[settingId]",
-                params: { settingId: profile._id },
-              })
+              router.push("/settings/")
             }>
             <Feather
               name="menu"

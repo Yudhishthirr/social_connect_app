@@ -7,10 +7,12 @@ import { colors } from "../../constants/colors";
 import StoryBubble from "./StoryBubble";
 
 const StoriesStrip = ({ onAddStory }: { onAddStory: () => void }) => {
-
   const user = useSelector((state: RootState) => state.auth.user);
   const [openStoryId, setOpenStoryId] = useState<string | null>(null);
   const { data, isLoading } = useStory();
+
+  // User can be null after logout; guard after hooks to preserve hook order.
+  if (!user) return null;
 
   if (isLoading) return <ActivityIndicator size="small" />;
   // console.log("user",user);
@@ -43,17 +45,6 @@ const StoriesStrip = ({ onAddStory }: { onAddStory: () => void }) => {
         contentContainerStyle={{ paddingHorizontal: 16 }}
         className="py-3"
       >
-       {/* {rawStories?.length > 0 && rawStories.map((story: any) => (
-          <StoryBubble
-            key={story.author._id}
-            id={story.author._id}
-            label={story.author.username}
-            avatar={story.author.avatar} // 👈 Pass string directly, not { uri: ... }
-            stories={story.author.stories}
-            onPress={(storyId) => setOpenStoryId(storyId)}
-            onAddStory={onAddStory}
-          />
-        ))} */}
         {allStories.map((story: any) => (
           <StoryBubble
             key={story.author._id}

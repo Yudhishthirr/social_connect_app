@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 
 import { getCurrentUser } from '@/services/authService';
 import { useQuery } from '@tanstack/react-query';
+import { router } from "expo-router";
 
 
 export function useAuth() {
@@ -71,6 +72,7 @@ export function useAuth() {
         await SecureStore.deleteItemAsync("refreshToken");
   
         dispatch(logout()); // redux clear user
+        router.push("/(auth)/login");
       }
   
       return res;
