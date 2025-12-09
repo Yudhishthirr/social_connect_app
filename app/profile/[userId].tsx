@@ -1,10 +1,9 @@
 import LoadUserProfile from "@/components/profile/LoadUserProfile";
 import { useAuth, useUserById } from "@/hooks/useAuth";
 import { RootState } from "@/store";
-import { Feather, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
@@ -54,25 +53,6 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <View style={styles.usernameWrapper}>
-          <Text style={styles.username}>{profile?.username}</Text>
-          <Ionicons name="chevron-down" size={16} color="#262626" />
-        </View>
-        <View style={styles.headerActions}>
-          <TouchableOpacity>
-            <Feather name="plus-square" size={24} color="#262626" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={logoutCurrentUser}>
-            <Feather
-              name="menu"
-              size={24}
-              color="#262626"
-              style={styles.menuIcon}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
       <LoadUserProfile
         profile={profile}
         isCurrentUser={isCurrentUser}

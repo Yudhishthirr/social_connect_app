@@ -1,10 +1,8 @@
-import { registerUser } from "@/services/authService";
 import { Link, useRouter } from "expo-router";
+import { useState } from "react";
 import {
   Alert,
   Image,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -13,192 +11,389 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { registerSchema, RegisterSchemaType } from "@/validation/authSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
-const RegisterScreen = () => {
+import { useImagePicker } from "@/hooks/useImagePicker";
+import { registerUser } from "@/services/authService";
+import { step1Schema, step2Schema, step3Schema } from "@/validation/authSchema";
+// ----------------------------------
+// ZOD SCHEMAS
+// ----------------------------------
+const Step1Schema = z.object({
+  fullName: z.string().min(2, "Full name is required"),
+  username: z.string().min(3, "Username required"),
+  email: z.string().email("Invalid email"),
+});
+
+const Step2Schema = z.object({
+  password: z.string().min(6, "Min 6 characters"),
+});
+
+const Step3Schema = z.object({
+  gender: z.string().min(1, "Select gender"),
+});
+
+// ----------------------------------
+// MAIN COMPONENT
+// ----------------------------------
+export default function RegisterScreen() {
+
   const router = useRouter();
+  const [step, setStep] = useState(1);
 
-  // React Hook Form setup with Zod
-  const {control,handleSubmit,formState: { errors, isSubmitting }} = useForm<RegisterSchemaType>({resolver: zodResolver(registerSchema),
+  // stores all onboarding data
+  const [onboardData, setOnboardData] = useState({
+    fullName: "",
+    username: "",
+    email: "",
+    password: "",
+    gender: "",
+    profileImage: "",
+  });
+
+  const step1Form = useForm({
+    resolver: zodResolver(step1Schema),
     defaultValues: {
-      fullName: "",
-      email: "",
-      username: "",
-      password: "",
+      fullName: onboardData.fullName || "",
+      username: onboardData.username || "",
+      email: onboardData.email || "",
     },
   });
 
-  const onSubmit = async (data: RegisterSchemaType) => {
+  // Step 2 form
+  const step2Form = useForm({
+    resolver: zodResolver(step2Schema),
+    defaultValues: {
+      password: onboardData.password || "",
+    },
+  });
+
+  const step3Form = useForm({
+    resolver: zodResolver(step3Schema),
+    defaultValues: {
+      gender: onboardData.gender || "",
+    },
+  });
+
+  const { pickImage } = useImagePicker();
+  // Pick profile image
+  // const pickImage = async () => {
+  //   const res = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  //     quality: 0.8,
+  //   });
+
+  //   if (!res.canceled) {
+  //     setOnboardData((prev) => ({
+  //       ...prev,
+  //       profileImage: res.assets[0].uri,
+  //     }));
+  //   }
+  // };
+
+  // FINAL SUBMIT
+  const submitFinal = async () => {
     try {
-      const result = await registerUser(data);
-      console.log(result);
-      
+      const result = await registerUser(onboardData);
+
       if (result.success) {
-        Alert.alert("Success", "Account created!");
+        Alert.alert("Success", "Your account has been created!");
         router.replace("/(auth)/login");
       } else {
         Alert.alert("Error", result.message || "Something went wrong");
       }
     } catch (err: any) {
-      if (err.response) {
-        alert(err.response.data.message);
-      } else {
-        console.log("Network/Unknown Error ➜", err.message);
-      }
+      Alert.alert("Error", err.message);
     }
   };
 
+  // ----------------------------------
+  // UI STARTS
+  // ----------------------------------
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
+      <ScrollView
         className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 24,
+          paddingTop: 20,
+          paddingBottom: 40,
+        }}
       >
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View className="flex-1 px-6 pt-4 pb-8">
-            {/* Logo */}
-            <View className="items-center mt-40">
-              <Image
-                source={require("../../assets/appimages/InstagramLogo.png")}
-                className="h-14 w-48"
-                resizeMode="contain"
-              />
-            </View>
+        {/* Logo */}
+        <View className="items-center mb-8">
+          <Image
+            source={require("../../assets/appimages/InstagramLogo.png")}
+            className="h-12 w-40"
+            resizeMode="contain"
+          />
+        </View>
 
-            {/* Form */}
-            <View className="mt-10 gap-4">
+        {/* Progress Indicator */}
+        <View className="flex-row justify-center mb-8 gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <View
+              key={i}
+              className={`h-2 flex-1 rounded-full ${
+                i <= step ? "bg-[#3797EF]" : "bg-neutral-200"
+              }`}
+            />
+          ))}
+        </View>
 
-              {/* Full Name */}
-              <Controller
-                control={control}
-                name="fullName"
-                render={({ field: { onChange, value } }) => (
-                  <View>
-                    <View className="border border-neutral-200 rounded-lg bg-neutral-50">
-                      <TextInput
-                        placeholder="Full Name"
-                        placeholderTextColor="#a1a1aa"
-                        className="h-12 px-4 text-[15px] text-black font-medium"
-                        autoCapitalize="words"
-                        value={value}
-                        onChangeText={onChange}
-                      />
-                    </View>
-                    {errors.fullName && (
-                      <Text className="text-red-500 text-xs mt-1">
-                        {errors.fullName.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
+        {/* TITLE */}
+        <Text className="text-2xl font-bold mb-2 text-neutral-900">
+          {step === 1 && "Create your account"}
+          {step === 2 && "Create a password"}
+          {step === 3 && "Select your gender"}
+          {step === 4 && "Add a profile photo"}
+        </Text>
 
-              {/* Email */}
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, value } }) => (
-                  <View>
-                    <View className="border border-neutral-200 rounded-lg bg-neutral-50">
-                      <TextInput
-                        placeholder="Email"
-                        placeholderTextColor="#a1a1aa"
-                        className="h-12 px-4 text-[15px] text-black font-medium"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        value={value}
-                        onChangeText={onChange}
-                      />
-                    </View>
-                    {errors.email && (
-                      <Text className="text-red-500 text-xs mt-1">
-                        {errors.email.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
+        {/* Subtitle */}
+        <Text className="text-sm text-neutral-500 mb-8">
+          {step === 1 && "Let's get started with your basic information"}
+          {step === 2 && "Choose a secure password for your account"}
+          {step === 3 && "This helps us personalize your experience"}
+          {step === 4 && "Choose a photo that represents you"}
+        </Text>
 
-              {/* Username */}
-              <Controller
-                control={control}
-                name="username"
-                render={({ field: { onChange, value } }) => (
-                  <View>
-                    <View className="border border-neutral-200 rounded-lg bg-neutral-50">
-                      <TextInput
-                        placeholder="Username"
-                        placeholderTextColor="#a1a1aa"
-                        className="h-12 px-4 text-[15px] text-black font-medium"
-                        autoCapitalize="none"
-                        value={value}
-                        onChangeText={onChange}
-                      />
-                    </View>
-                    {errors.username && (
-                      <Text className="text-red-500 text-xs mt-1">
-                        {errors.username.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
+        {/* =============================================================
+            STEP 1 — BASIC INFO
+        ============================================================= */}
+        {step === 1 && (
+          <View className="gap-4">
+            <Controller
+              control={step1Form.control}
+              name="fullName"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text className="text-sm font-medium text-neutral-700 mb-2">
+                    Full Name
+                  </Text>
+                  <TextInput
+                    placeholder="Enter your full name"
+                    className="border border-neutral-300 bg-white rounded-xl h-14 px-4 text-base"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                  {step1Form.formState.errors.fullName && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {step1Form.formState.errors.fullName.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
 
-              {/* Password */}
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, value } }) => (
-                  <View>
-                    <View className="border border-neutral-200 rounded-lg bg-neutral-50">
-                      <TextInput
-                        placeholder="Password"
-                        placeholderTextColor="#a1a1aa"
-                        secureTextEntry
-                        className="h-12 px-4 text-[15px] text-black"
-                        value={value}
-                        onChangeText={onChange}
-                      />
-                    </View>
-                    {errors.password && (
-                      <Text className="text-red-500 text-xs mt-1">
-                        {errors.password.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
+            <Controller
+              control={step1Form.control}
+              name="username"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text className="text-sm font-medium text-neutral-700 mb-2">
+                    Username
+                  </Text>
+                  <TextInput
+                    placeholder="Choose a username"
+                    className="border border-neutral-300 bg-white rounded-xl h-14 px-4 text-base"
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize="none"
+                  />
+                  {step1Form.formState.errors.username && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {step1Form.formState.errors.username.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
 
-              {/* Forgot Password */}
-              <TouchableOpacity className="self-end mt-1">
-                <Text className="text-xs font-semibold text-[#3797EF]">
-                  Forgot password?
-                </Text>
+            <Controller
+              control={step1Form.control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text className="text-sm font-medium text-neutral-700 mb-2">
+                    Email
+                  </Text>
+                  <TextInput
+                    placeholder="Enter your email"
+                    className="border border-neutral-300 bg-white rounded-xl h-14 px-4 text-base"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                  {step1Form.formState.errors.email && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {step1Form.formState.errors.email.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+
+            <TouchableOpacity
+              className="bg-[#3797EF] h-14 rounded-xl justify-center items-center mt-6 shadow-sm"
+              onPress={step1Form.handleSubmit((data) => {
+                setOnboardData((prev) => ({ ...prev, ...data }));
+                setStep(2);
+              })}
+            >
+              <Text className="text-white font-semibold text-base">Next</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* =============================================================
+            STEP 2 — PASSWORD
+        ============================================================= */}
+        {step === 2 && (
+          <View className="gap-4">
+            <Controller
+              control={step2Form.control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <View>
+                  <Text className="text-sm font-medium text-neutral-700 mb-2">
+                    Password
+                  </Text>
+                  <TextInput
+                    placeholder="Create a password"
+                    secureTextEntry
+                    className="border border-neutral-300 bg-white rounded-xl h-14 px-4 text-base"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                  <Text className="text-xs text-neutral-500 mt-1">
+                    Must be at least 6 characters
+                  </Text>
+                  {step2Form.formState.errors.password && (
+                    <Text className="text-red-500 text-xs mt-1">
+                      {step2Form.formState.errors.password.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+
+            <View className="flex-row justify-between mt-6 gap-3">
+              <TouchableOpacity
+                className="flex-1 h-14 border-2 border-neutral-300 rounded-xl items-center justify-center"
+                onPress={() => setStep(1)}
+              >
+                <Text className="font-semibold text-neutral-700">Previous</Text>
               </TouchableOpacity>
 
-              {/* Submit Button */}
               <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={handleSubmit(onSubmit)}
-                disabled={isSubmitting}
-                className={`h-12 rounded-lg items-center justify-center ${
-                  isSubmitting ? "bg-[#B9DFFC]" : "bg-[#3797EF]"
+                className="flex-1 bg-[#3797EF] h-14 rounded-xl items-center justify-center shadow-sm"
+                onPress={step2Form.handleSubmit((data) => {
+                  setOnboardData((prev) => ({ ...prev, ...data }));
+                  setStep(3);
+                })}
+              >
+                <Text className="text-white font-semibold text-base">Next</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* =============================================================
+            STEP 3 — GENDER
+        ============================================================= */}
+        {step === 3 && (
+          <View>
+            {["Male", "Female"].map((g) => (
+              <TouchableOpacity
+                key={g}
+                onPress={() => {
+                  setOnboardData((prev) => ({ ...prev, gender: g }));
+                  setStep(4);
+                }}
+                className={`h-14 border-2 rounded-xl justify-center px-4 mb-3 ${
+                  onboardData.gender === g
+                    ? "bg-[#3797EF] border-[#3797EF]"
+                    : "bg-white border-neutral-300"
                 }`}
               >
-                <Text className="text-white text-base font-semibold">
-                  {isSubmitting ? "Creating..." : "Sign Up"}
+                <Text
+                  className={`font-medium ${
+                    onboardData.gender === g
+                      ? "text-white"
+                      : "text-neutral-700"
+                  }`}
+                >
+                  {g}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              className="mt-6 h-14 border-2 border-neutral-300 rounded-xl items-center justify-center"
+              onPress={() => setStep(2)}
+            >
+              <Text className="font-semibold text-neutral-700">Previous</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* =============================================================
+            STEP 4 — PROFILE PICTURE
+        ============================================================= */}
+        {step === 4 && (
+          <View className="items-center">
+            <TouchableOpacity onPress={pickImage} className="mb-4">
+              {onboardData.profileImage ? (
+                <Image
+                  source={{ uri: onboardData.profileImage }}
+                  className="h-32 w-32 rounded-full border-4 border-[#3797EF]"
+                />
+              ) : (
+                <View className="h-32 w-32 rounded-full bg-neutral-100 border-2 border-dashed border-neutral-300 justify-center items-center">
+                  <Text className="text-neutral-400 font-medium">
+                    Tap to select
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <Text className="text-sm text-neutral-500 text-center mb-8">
+              This is optional. You can skip or add it later.
+            </Text>
+
+            <View className="flex-row justify-between w-full gap-3">
+              <TouchableOpacity
+                className="flex-1 h-14 border-2 border-neutral-300 rounded-xl items-center justify-center"
+                onPress={() => setStep(3)}
+              >
+                <Text className="font-semibold text-neutral-700">Previous</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-1 h-14 bg-[#3797EF] rounded-xl items-center justify-center shadow-sm"
+                onPress={submitFinal}
+              >
+                <Text className="text-white font-semibold text-base">
+                  Finish
                 </Text>
               </TouchableOpacity>
             </View>
+          </View>
+        )}
 
+        {/* Spacer to push footer down */}
+        <View className="flex-1" />
+
+        {/* Footer - Only show on step 1 */}
+        {step === 1 && (
+          <>
             {/* Divider */}
-            <View className="flex-row items-center my-10 px-4">
+            <View className="flex-row items-center my-8">
               <View className="flex-1 h-px bg-neutral-200" />
               <Text className="mx-3 text-xs font-semibold text-neutral-400">
                 OR
@@ -206,20 +401,18 @@ const RegisterScreen = () => {
               <View className="flex-1 h-px bg-neutral-200" />
             </View>
 
-            {/* Login */}
+            {/* Login Link */}
             <View className="items-center">
               <Link href="/(auth)/login">
-                <Text className="text-sm text-neutral-500">
-                  have an account?{" "}
-                  <Text className="text-[#3797EF] font-semibold">Login.</Text>
+                <Text className="text-sm text-neutral-600">
+                  Have an account?{" "}
+                  <Text className="text-[#3797EF] font-semibold">Log in.</Text>
                 </Text>
               </Link>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
-};
-
-export default RegisterScreen;
+}

@@ -1,4 +1,5 @@
 import FollowersModal from "@/components/profile/followerslist";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -57,91 +58,118 @@ const LoadUserProfile = ({
     (user) => user._id === CurrentUserId
   );
   const renderHeader = () => (
-    <View style={styles.content}>
-      {/* ---------- PROFILE IMAGE + STATS ---------- */}
-      <View style={styles.profileRow}>
-        <View style={styles.avatarWrapper}>
-          <View style={styles.avatarOuterRing}>
-            <View style={styles.avatarInnerRing}>
-              <Image
-                source={{ uri: profile?.avatar }}
-                style={styles.avatarImage}
-              />
+
+    <>
+      <View style={styles.header}>
+        <View style={styles.usernameWrapper}>
+          <Text style={styles.username}>{profile?.username}</Text>
+          <Ionicons name="chevron-down" size={16} color="#262626" />
+        </View>
+        <View style={styles.headerActions}>
+          <TouchableOpacity>
+            <Feather name="plus-square" size={24} color="#262626" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() =>
+              router.push({
+                pathname: "/settings/[settingId]",
+                params: { settingId: profile._id },
+              })
+            }>
+            <Feather
+              name="menu"
+              size={24}
+              color="#262626"
+              style={styles.menuIcon}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.content}>
+        {/* ---------- PROFILE IMAGE + STATS ---------- */}
+        <View style={styles.profileRow}>
+          <View style={styles.avatarWrapper}>
+            <View style={styles.avatarOuterRing}>
+              <View style={styles.avatarInnerRing}>
+                <Image
+                  source={{ uri: profile?.avatar }}
+                  style={styles.avatarImage}
+                />
+              </View>
             </View>
           </View>
-        </View>
 
-        <View style={styles.statsWrapper}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{profile?.postsCount}</Text>
-            <Text style={styles.statLabel}>Posts</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.statItem}
-            onPress={() => {
-              if (profile?.followersCount! > 0) {
-                setModalType("followers");
-              }
-            }}
-          >
-            <Text style={styles.statValue}>{profile?.followersCount}</Text>
-            <Text style={styles.statLabel}>Followers</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.statItem}
-            onPress={() => {
-              if (profile?.followingCount! > 0) {
-                setModalType("following");
-              }
-            }}
-          >
-            <Text style={styles.statValue}>{profile?.followingCount}</Text>
-            <Text style={styles.statLabel}>Following</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* ---------- BIO SECTION ---------- */}
-      <View style={styles.bioSection}>
-        <Text style={styles.name}>{profile?.fullName}</Text>
-        {profile?.bio && <Text style={styles.bioText}>{profile?.bio}</Text>}
-        <Text style={styles.handle}>@{profile?.username}</Text>
-      </View>
-
-      {/* ---------- ACTION BUTTONS ---------- */}
-      {isCurrentUser ? (
-        // Edit Profile Button for current user
-        <TouchableOpacity style={styles.editButton} onPress={onEditProfile}>
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-      ) : (
-        // Follow/Unfollow + Message buttons for other users
-        <View style={styles.actionButtonsRow}>
-          <TouchableOpacity
-            style={[
-              styles.followButton,
-              isFollowing && styles.followingButton,
-            ]}
-            onPress={isFollowing ? onUnfollow : onFollow}
-          >
-            <Text
-              style={[
-                styles.followButtonText,
-                isFollowing && styles.followingButtonText,
-              ]}
+          <View style={styles.statsWrapper}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{profile?.postsCount}</Text>
+              <Text style={styles.statLabel}>Posts</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.statItem}
+              onPress={() => {
+                if (profile?.followersCount! > 0) {
+                  setModalType("followers");
+                }
+              }}
             >
-              {isFollowing ? "Following" : "Follow"}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.messageButton}onPress={() => router.push(`/chat/${profile._id}`)}>
-            <Text style={styles.messageButtonText}>Message</Text>
-          </TouchableOpacity>
+              <Text style={styles.statValue}>{profile?.followersCount}</Text>
+              <Text style={styles.statLabel}>Followers</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.statItem}
+              onPress={() => {
+                if (profile?.followingCount! > 0) {
+                  setModalType("following");
+                }
+              }}
+            >
+              <Text style={styles.statValue}>{profile?.followingCount}</Text>
+              <Text style={styles.statLabel}>Following</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      )}
 
-      <View style={styles.segmentControl} />
-    </View>
+        {/* ---------- BIO SECTION ---------- */}
+        <View style={styles.bioSection}>
+          <Text style={styles.name}>{profile?.fullName}</Text>
+          {profile?.bio && <Text style={styles.bioText}>{profile?.bio}</Text>}
+          <Text style={styles.handle}>@{profile?.username}</Text>
+        </View>
+
+        {/* ---------- ACTION BUTTONS ---------- */}
+        {isCurrentUser ? (
+          // Edit Profile Button for current user
+          <TouchableOpacity style={styles.editButton} onPress={onEditProfile}>
+            <Text style={styles.editButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+        ) : (
+          // Follow/Unfollow + Message buttons for other users
+          <View style={styles.actionButtonsRow}>
+            <TouchableOpacity
+              style={[
+                styles.followButton,
+                isFollowing && styles.followingButton,
+              ]}
+              onPress={isFollowing ? onUnfollow : onFollow}
+            >
+              <Text
+                style={[
+                  styles.followButtonText,
+                  isFollowing && styles.followingButtonText,
+                ]}
+              >
+                {isFollowing ? "Following" : "Follow"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.messageButton}onPress={() => router.push(`/chat/${profile._id}`)}>
+              <Text style={styles.messageButtonText}>Message</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={styles.segmentControl} />
+      </View>
+      </>
   );
 
  
@@ -189,6 +217,31 @@ const LoadUserProfile = ({
 export default LoadUserProfile;
 
 const styles = StyleSheet.create({
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  menuIcon: {
+    marginLeft: 4,
+  },
+  usernameWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#262626",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
   content: {
     paddingBottom: 16,
   },

@@ -1,10 +1,10 @@
 import LoadUserProfile from "@/components/profile/LoadUserProfile";
 import { useAuth, useCurrentUser } from "@/hooks/useAuth";
 import { RootState } from "@/store";
-import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
 const ProfileScreen = () => {
@@ -43,38 +43,15 @@ const ProfileScreen = () => {
   }
 
   return (
-    // <Text>profile</Text>
     <SafeAreaView style={styles.safeArea}>
-    {/* ---------- HEADER ---------- */}
-    <View style={styles.header}>
-      <View style={styles.usernameWrapper}>
-        <Text style={styles.username}>{profile?.username}</Text>
-        <Ionicons name="chevron-down" size={16} color="#262626" />
-      </View>
-      <View style={styles.headerActions}>
-        <TouchableOpacity>
-          <Feather name="plus-square" size={24} color="#262626" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={logoutCurrentUser}>
-          <Feather
-            name="menu"
-            size={24}
-            color="#262626"
-            style={styles.menuIcon}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
-
-    {/* ---------- PROFILE COMPONENT ---------- */}
-    <LoadUserProfile
-      profile={profile}
-      isCurrentUser={true}
-      onEditProfile={() => {
-        // Navigate to edit profile screen
-        console.log("Edit profile");
-      }}
-    />
+      <LoadUserProfile
+        profile={profile}
+        isCurrentUser={true}
+        onEditProfile={() => {
+          // Navigate to edit profile screen
+          console.log("Edit profile");
+        }}
+      />
   </SafeAreaView>
   );
 };
@@ -85,30 +62,5 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  usernameWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  username: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#262626",
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  menuIcon: {
-    marginLeft: 4,
-  },
+  }
 });
