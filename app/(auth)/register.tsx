@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -19,6 +20,7 @@ import { z } from "zod";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { registerUser } from "@/services/authService";
 import { step1Schema, step2Schema, step3Schema } from "@/validation/authSchema";
+// import login from "./login";
 // ----------------------------------
 // ZOD SCHEMAS
 // ----------------------------------
@@ -43,6 +45,7 @@ export default function RegisterScreen() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const { login } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(1);
 
@@ -94,8 +97,10 @@ export default function RegisterScreen() {
       const result = await registerUser(onboardData);
   
       if (result.success) {
-        Alert.alert("Success", "Your account has been created!");
-        router.replace("/(auth)/login");
+        // Alert.alert("Success", "Your account has been created!");
+        const res = await login(onboardData);
+        if (res.success) router.replace("/(tabs)");
+        
       } else {
         Alert.alert("Error", result.message || "Something went wrong");
       }
