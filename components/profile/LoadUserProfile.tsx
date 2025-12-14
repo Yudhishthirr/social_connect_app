@@ -33,7 +33,7 @@ interface LoadUserProfileProps {
   onFollow?: () => void;
   onUnfollow?: () => void;
   onMessage?: () => void;
-  onEditProfile?: () => void;
+ 
   // isFollowing?: boolean;
 }
 
@@ -44,7 +44,6 @@ const LoadUserProfile = ({
   onFollow,
   onUnfollow,
   onMessage,
-  onEditProfile,
   // isFollowing = false,
 }: LoadUserProfileProps) => {
   const [modalType, setModalType] = useState<"followers" | "following" | null>(
@@ -135,7 +134,7 @@ const LoadUserProfile = ({
         {/* ---------- ACTION BUTTONS ---------- */}
         {isCurrentUser ? (
           // Edit Profile Button for current user
-          <TouchableOpacity style={styles.editButton} onPress={onEditProfile}>
+          <TouchableOpacity style={styles.editButton} onPress={()=>router.push("/edit/edit")}>
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         ) : (

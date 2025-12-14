@@ -102,7 +102,8 @@ export function useUserById(id: string) {
   return useQuery({
     queryKey: ["userById", id],
     queryFn: () => getUserById(id),
-    enabled: !!id,            // prevents running when id is empty
-    staleTime: 1000 * 60 * 5, // keep cached 5 minutes
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 }

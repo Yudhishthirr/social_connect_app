@@ -47,10 +47,6 @@ const ProfileScreen = () => {
       <LoadUserProfile
         profile={profile}
         isCurrentUser={true}
-        onEditProfile={() => {
-          // Navigate to edit profile screen
-          console.log("Edit profile");
-        }}
       />
   </SafeAreaView>
   );

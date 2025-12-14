@@ -1,137 +1,180 @@
+import { useCurrentUser } from "@/hooks/useAuth";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    Image,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type EditableField =
-  | "name"
   | "username"
-  | "website"
-  | "bio"
+  | "firstName"
+  | "lastName"
   | "email"
-  | "phone"
-  | "gender";
+  | "dateOfBirth";
 
-const profileImage = require("../../assets/appimages/Inner Oval.png");
+const profileImageFallback = require("../../assets/appimages/Inner Oval.png");
 
 const EditProfile = () => {
   const router = useRouter();
+
+  const { data, isLoading, isError } = useCurrentUser();
+  const user = data?.data;
+
   const [form, setForm] = useState<Record<EditableField, string>>({
-    name: "Jacob West",
-    username: "jacob_w",
-    website: "",
-    bio: "Digital goodies designer @pixsellz\nEverything is designed.",
-    email: "jacob.west@gmail.com",
-    phone: "+1 202 555 0147",
-    gender: "Male",
+    username: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    dateOfBirth: "",
   });
+
+  // 🔹 Prefill form when API data arrives
+  useEffect(() => {
+    if (user) {
+      const [firstName = "", lastName = ""] =
+        user.fullName?.split(" ") ?? [];
+
+      setForm({
+        username: user.username ?? "",
+        firstName,
+        lastName,
+        email: user.email ?? "",
+        dateOfBirth: "",
+      });
+    }
+  }, [user]);
 
   const handleChange = (field: EditableField, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const primaryFields: { label: string; key: EditableField; multiline?: boolean }[] = [
-    { label: "Name", key: "name" },
+  const fields: {
+    label: string;
+    key: EditableField;
+    showCalendarIcon?: boolean;
+  }[] = [
     { label: "Username", key: "username" },
-    { label: "Website", key: "website" },
-    { label: "Bio", key: "bio", multiline: true },
+    { label: "First Name", key: "firstName" },
+    { label: "Last Name", key: "lastName" },
+    { label: "Email", key: "email" },
+    { label: "Date of Birth", key: "dateOfBirth", showCalendarIcon: true },
   ];
 
-  const privateFields: { label: string; key: EditableField }[] = [
-    { label: "Email", key: "email" },
-    { label: "Phone", key: "phone" },
-    { label: "Gender", key: "gender" },
-  ];
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (isError || !user) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>Failed to load profile</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {/* Header */}
       <View className="border-b border-neutral-200 px-4 py-3">
         <View className="flex-row items-center justify-between">
-          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-            <Text className="text-base font-semibold text-neutral-500">Cancel</Text>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="text-base font-semibold text-black">Edit Profile</Text>
+          <Text className="text-base font-semibold text-black">
+            Edit Profile
+          </Text>
 
-          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-            <Text className="text-base font-semibold text-sky-500">Done</Text>
-          </TouchableOpacity>
+          <View className="w-6" />
         </View>
       </View>
 
       <ScrollView
-        className="flex-1"
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="items-center border-b border-neutral-100 px-4 py-6">
-          <View className="h-28 w-28 overflow-hidden rounded-full">
-            <Image source={profileImage} className="h-full w-full" resizeMode="cover" />
+        {/* Profile Picture */}
+        <View className="items-center px-4 pt-6 pb-8">
+          <View className="relative">
+            <View className="h-28 w-28 overflow-hidden rounded-full">
+              <Image
+                source={
+                  user.avatar
+                    ? { uri: user.avatar }
+                    : profileImageFallback
+                }
+                className="h-full w-full"
+                resizeMode="cover"
+              />
+            </View>
+
+            <View className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-black">
+              <Ionicons name="camera" size={14} color="#fff" />
+            </View>
           </View>
+        </View>
 
-          <TouchableOpacity className="mt-4" activeOpacity={0.7}>
-            <Text className="text-sm font-semibold text-sky-500">Change Profile Photo</Text>
+        {/* Inputs */}
+        <View className="px-4">
+          {fields.map((field) => (
+            <View key={field.key} className="mb-6">
+              <Text className="mb-2 text-sm font-medium text-neutral-700">
+                {field.label}
+              </Text>
+
+              <View className="relative">
+                <TextInput
+                  className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-black"
+                  value={form[field.key]}
+                  onChangeText={(value) =>
+                    handleChange(field.key, value)
+                  }
+                  placeholder={field.label}
+                  placeholderTextColor="#C7C7CC"
+                  keyboardType={
+                    field.key === "email" ? "email-address" : "default"
+                  }
+                />
+
+                {field.showCalendarIcon && (
+                  <View className="absolute right-4 top-0 bottom-0 justify-center">
+                    <Ionicons
+                      name="calendar-outline"
+                      size={20}
+                      color="#8E8E93"
+                    />
+                  </View>
+                )}
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Update Button */}
+        <View className="mt-4 px-4">
+          <TouchableOpacity
+            className="rounded-lg bg-neutral-800 py-4"
+            onPress={() => {
+              // 🔥 later: call updateProfile mutation
+              console.log("Updated values:", form);
+              router.back();
+            }}
+          >
+            <Text className="text-center text-base font-semibold uppercase text-white">
+              Update
+            </Text>
           </TouchableOpacity>
-        </View>
-
-        <View className="px-4">
-          {primaryFields.map((field) => (
-            <View key={field.key} className="flex-row border-b border-neutral-100 py-4">
-              <Text className="w-28 text-base font-medium text-neutral-500">
-                {field.label}
-              </Text>
-              <TextInput
-                className={`flex-1 text-base text-black ${field.multiline ? "leading-6" : ""}`}
-                multiline={field.multiline}
-                value={form[field.key]}
-                onChangeText={(value) => handleChange(field.key, value)}
-                placeholder={field.label}
-                placeholderTextColor="#C7C7CC"
-              />
-            </View>
-          ))}
-        </View>
-
-        <TouchableOpacity className="px-4 py-5" activeOpacity={0.7}>
-          <Text className="text-sm font-semibold text-sky-500">
-            Switch to Professional Account
-          </Text>
-        </TouchableOpacity>
-
-        <View className="px-4">
-          <Text className="text-xs font-semibold uppercase tracking-[1px] text-neutral-500">
-            Private Information
-          </Text>
-        </View>
-
-        <View className="mt-3 px-4">
-          {privateFields.map((field, index) => (
-            <View
-              key={field.key}
-              className={`flex-row items-center py-4 ${
-                index !== privateFields.length - 1 ? "border-b border-neutral-100" : ""
-              }`}
-            >
-              <Text className="w-28 text-base font-medium text-neutral-500">
-                {field.label}
-              </Text>
-              <TextInput
-                className="flex-1 text-base text-black"
-                value={form[field.key]}
-                onChangeText={(value) => handleChange(field.key, value)}
-                placeholder={field.label}
-                placeholderTextColor="#C7C7CC"
-                keyboardType={field.key === "phone" ? "phone-pad" : "default"}
-              />
-            </View>
-          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -139,4 +182,3 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
-
