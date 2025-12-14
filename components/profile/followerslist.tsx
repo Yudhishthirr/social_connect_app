@@ -1,14 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Modal,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Modal,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 
 interface Follower {
@@ -59,11 +59,18 @@ const FollowersModal = ({
       </View>
 
       {/* Username */}
-      <View className="flex-1">
+      <TouchableOpacity className="flex-1"  
+          onPress={() => {
+            router.push({
+              pathname: "/profile/[userId]",
+              params: { userId: item._id },
+            });
+            onClose();
+          }}>
         <Text className="text-[14px] font-semibold text-black">
           {item.username}
         </Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Follow Button */}
       <TouchableOpacity

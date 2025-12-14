@@ -53,7 +53,7 @@ const Comments = ({ visible, postId, onClose }: CommentsProps) => {
 
   // SAFELY extract comments
   const comments: Comment[] = data?.data || [];
-  console.log("comments:", comments);
+  console.log("comments:", data);
 
   // Add new comment
   const onSubmit = async (formData: CommentFormData) => {

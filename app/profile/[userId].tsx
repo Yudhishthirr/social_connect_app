@@ -1,11 +1,13 @@
 import LoadUserProfile from "@/components/profile/LoadUserProfile";
-import { useAuth, useUserById } from "@/hooks/useAuth";
+import { useUserById } from "@/hooks/useAuth";
+import { useFollowUser } from "@/hooks/useFollow";
 import { RootState } from "@/store";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
+
 
 const ProfileScreen = () => {
   const router = useRouter();
@@ -14,10 +16,10 @@ const ProfileScreen = () => {
 
   let isCurrentUser = false
   if(user._id == userId) isCurrentUser = true;
- 
   
-  const { logoutUserhook } = useAuth();
-
+  
+  // const { logoutUserhook } = useAuth();
+  const { mutate: followUser, isPending } = useFollowUser();
  
 
   const { data, isLoading, isError } = useUserById(userId);
@@ -26,11 +28,12 @@ const ProfileScreen = () => {
   console.log(data);
   const profile = data?.data;
 
-  function logoutCurrentUser() {
-    logoutUserhook();
-    router.push("/(auth)/login");
-  }
-
+ 
+  const handleFollow = () => {
+    if (!profile?._id) return;
+    console.log("want to follow this user",profile._id);
+    followUser(profile._id);
+  };
   useEffect(() => {
     if (!user) router.replace("/(auth)/login");
   }, [user]);
@@ -57,6 +60,8 @@ const ProfileScreen = () => {
         profile={profile}
         isCurrentUser={isCurrentUser}
         CurrentUserId={user._id}
+        onFollow={handleFollow}
+        onUnfollow={handleFollow}
         onEditProfile={() => {
           // Navigate to edit profile screen
           console.log("Edit profile");

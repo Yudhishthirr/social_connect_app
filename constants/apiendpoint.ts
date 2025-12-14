@@ -30,7 +30,7 @@ const ApiEndpoint = {
   },
 
   follow: {
-    followUser: `${BASE}/follow/follow`,
+    followUser: (followingId: string) => `${BASE}/follow/follow/${followingId}`,
   },
 
   story: {
