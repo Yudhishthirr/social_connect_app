@@ -16,11 +16,10 @@ const ProfileScreen = () => {
 
   const { data, isLoading, isError } = useCurrentUser();
   const profile = data?.data;
+  console.log("current user data");
+  console.log(data);
 
-  function logoutCurrentUser() {
-    logoutUserhook();
-    router.push("/(auth)/login");
-  }
+  
 
   useEffect(() => {
     if (!user) router.replace("/(auth)/login");

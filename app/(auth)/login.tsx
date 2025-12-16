@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
 import { useAuth } from "@/hooks/useAuth";
-import { socket } from "@/socket/socket";
+import { socket } from "@/services/socket";
 const LoginScreen = () => {
 
 
@@ -40,7 +40,8 @@ const LoginScreen = () => {
       console.log("user is",res.data.user._id)
       if (res.success) {
         socket.connect();
-        socket.emit("join", res.data.user._id);  // VERY IMPORTANT
+        // socket.emit("join", res.data.user._id);  // VERY IMPORTANT
+        socket.emit("user_connected", res.data.user._id);
         router.replace("/(tabs)"); // Go to home screen
       } else {
         Alert.alert("Error", res.message || "Invalid credentials");

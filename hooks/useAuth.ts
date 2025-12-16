@@ -6,6 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import { useDispatch } from "react-redux";
 
 import { getCurrentUser } from '@/services/authService';
+import { socket } from "@/services/socket";
 import { useQuery } from '@tanstack/react-query';
 import { router } from "expo-router";
 
@@ -68,6 +69,10 @@ export function useAuth() {
       const res = await logoutUser();
       if (res?.success) {
 
+        if (socket.connected) {
+          socket.disconnect();
+        }
+        
         await SecureStore.deleteItemAsync("accessToken");
         await SecureStore.deleteItemAsync("refreshToken");
   

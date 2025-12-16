@@ -3,6 +3,7 @@ import { ApiEndpoint } from "@/constants/apiendpoint";
 import { api } from "@/utils/api";
 
 
+
 export const sendMessage = async (data: any) => {
     const res = await api.post(ApiEndpoint.messages.send,data);
     return res.data;
