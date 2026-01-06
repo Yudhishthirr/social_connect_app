@@ -15,6 +15,8 @@ const ProfileScreen = () => {
   const { userId }:any = useLocalSearchParams();
 
   let isCurrentUser = false
+  console.log("userId from params",userId);
+
   if(user._id == userId) isCurrentUser = true;
   
   
@@ -62,10 +64,10 @@ const ProfileScreen = () => {
         CurrentUserId={user._id}
         onFollow={handleFollow}
         onUnfollow={handleFollow}
-        onEditProfile={() => {
-          // Navigate to edit profile screen
-          console.log("Edit profile");
-        }}
+        // onEditProfile={() => {
+        //   // Navigate to edit profile screen
+        //   console.log("Edit profile");
+        // }}
       />
     </SafeAreaView>
   );

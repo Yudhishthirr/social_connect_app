@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+// import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { loginSchema, LoginSchemaType } from "@/validation/authSchema";
 import { zodResolver } from "@hookform/resolvers/zod";

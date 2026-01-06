@@ -18,7 +18,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Create = () => {
 
@@ -102,7 +102,7 @@ const Create = () => {
     <SafeAreaProvider>
       {isPending && <Loader loadingText="Uploading..." />}
       {/* <SafeAreaView className="flex-1 bg-white" edges={['top']}> */}
-      <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+      <SafeAreaProvider className="flex-1 bg-white" edges={['top']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
@@ -212,7 +212,7 @@ const Create = () => {
             </View>
           )}
         </KeyboardAvoidingView>
-      </SafeAreaView>
+      </SafeAreaProvider>
     </SafeAreaProvider>
   );
 };

@@ -1,9 +1,9 @@
 import { Stack } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function ChatLayoutContent() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: "#fff" }}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen
           name="index"
@@ -20,6 +20,6 @@ export default function ChatLayoutContent() {
           }}
         />
       </Stack>
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

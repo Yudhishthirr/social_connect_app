@@ -45,7 +45,12 @@ const ApiEndpoint = {
   messages:{
     send: `${BASE}/messages`,
     history: (userId: string) => `${BASE}/messages/history/${userId}`
+  },
+  search: {
+    users: `${BASE}/users/search`,
   }
+  
+
 };
 
 export { ApiEndpoint };

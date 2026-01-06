@@ -1,8 +1,24 @@
 import { icons } from "@/constants/icons";
+import { useNotificationTap } from "@/hooks/useNotificationTap";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { Tabs } from "expo-router";
 import { Image, StyleSheet, View } from "react-native";
+import { useSelector } from "react-redux";
+
 
 function TabIcon({ focused, icon }: { focused: boolean; icon: any }) {
+
+  const isAuthenticated = useSelector(
+    (state: any) => !!state.auth?.token
+  );
+  console.log(`isAuthenticated : ${isAuthenticated}`)
+  // 🔔 Register push token once user is logged in
+  usePushNotifications(isAuthenticated);
+
+  // 🔔 Handle notification tap navigation
+  useNotificationTap();
+
+  
   return (
     <View style={styles.tabIconContainer}>
       {focused && <View style={styles.indicator} />}

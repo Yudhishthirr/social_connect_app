@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export const MessageList = ({ threads }: any) => {
     const router = useRouter();
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      < SafeAreaProvider className="flex-1 bg-white">
         {/* HEADER */}
         {/* <View className="border-b border-neutral-200 px-5 py-3">
           <View className="flex-row items-center justify-between">
@@ -98,7 +98,7 @@ export const MessageList = ({ threads }: any) => {
             </Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </ SafeAreaProvider>
     );
 };
   

@@ -11,19 +11,17 @@ const ProfileScreen = () => {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   const { logoutUserhook } = useAuth();
-
- 
-
   const { data, isLoading, isError } = useCurrentUser();
   const profile = data?.data;
-  console.log("current user data");
-  console.log(data);
+ 
 
-  
-
-  useEffect(() => {
+   useEffect(() => {
     if (!user) router.replace("/(auth)/login");
   }, [user]);
+  
+  console.log("current user data");
+  console.log(data);
+ 
 
   if (isLoading) {
     return (

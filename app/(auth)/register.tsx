@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -115,7 +115,7 @@ export default function RegisterScreen() {
   // UI STARTS
   // ----------------------------------
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaProvider className="flex-1 bg-white">
       <ScrollView
         className="flex-1"
         keyboardShouldPersistTaps="handled"
@@ -438,6 +438,6 @@ export default function RegisterScreen() {
           </>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

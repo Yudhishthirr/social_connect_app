@@ -1,7 +1,7 @@
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { useMemo } from "react";
 import { Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { IconSet, sections } from "@/constants/settingOptoins";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,7 +21,7 @@ const SettingsScreen = () => {
         [settingId]
     );
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        < SafeAreaProvider className="flex-1 bg-white">
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
             <View className="px-5 pt-2 pb-4">
             <Text className="text-2xl font-bold text-black">Settings and activity</Text>
@@ -76,7 +76,7 @@ const SettingsScreen = () => {
 
 
         </ScrollView>
-        </SafeAreaView>
+        </ SafeAreaProvider>
     );
 };
 

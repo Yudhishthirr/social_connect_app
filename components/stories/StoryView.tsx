@@ -1,12 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import {
-    Image,
-    ImageBackground,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ImageBackground,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const STORY_PROGRESS = [1, 0.4, 0];
 const storyImage = require("../../assets/appimages/Rectangle (1).png");
@@ -23,7 +23,7 @@ const StoryView = () => {
             style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
           />
 
-          <SafeAreaView className="flex-1 justify-between px-4 py-3">
+          <SafeAreaProvider  className="flex-1 justify-between px-4 py-3">
             <View>
               <View className="flex-row gap-1">
                 {STORY_PROGRESS.map((value, index) => (
@@ -81,7 +81,7 @@ const StoryView = () => {
                 <Feather name="send" size={20} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
-          </SafeAreaView>
+          </SafeAreaProvider >
         </View>
       </ImageBackground>
     </View>

@@ -23,17 +23,17 @@ interface UserProfile {
   followingCount: number;
   followersList: any[];
   followingList: any[];
-  posts: any[];
+  posts?: any[];
 }
 
 interface LoadUserProfileProps {
   profile: UserProfile;
   isCurrentUser: boolean;
-  CurrentUserId?:string
+  CurrentUserId?: string
   onFollow?: () => void;
   onUnfollow?: () => void;
   onMessage?: () => void;
- 
+
   // isFollowing?: boolean;
 }
 
@@ -52,7 +52,7 @@ const LoadUserProfile = ({
 
 
   const UserfollowingList = profile?.followersList || [];
-  
+
   const isFollowing = UserfollowingList.some(
     (user) => user._id === CurrentUserId
   );
@@ -69,8 +69,8 @@ const LoadUserProfile = ({
             <Feather name="plus-square" size={24} color="#262626" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() =>
-              router.push("/settings")
-            }>
+            router.push("/settings")
+          }>
             <Feather
               name="menu"
               size={24}
@@ -132,14 +132,19 @@ const LoadUserProfile = ({
         </View>
 
         {/* ---------- ACTION BUTTONS ---------- */}
-        {isCurrentUser ? (
-          // Edit Profile Button for current user
-          <TouchableOpacity style={styles.editButton} onPress={()=>router.push("/edit/edit")}>
+        {isCurrentUser && (
+          // Edit profile (own profile)
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => router.push("/edit/edit")}
+          >
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
-        ) : (
-          // Follow/Unfollow + Message buttons for other users
-          <View style={styles.actionButtonsRow}>
+        )}
+
+        {!isCurrentUser && profile?.accountType === "public" && (
+          // Public account → Follow + Message
+           <View style={styles.actionButtonsRow}>
             <TouchableOpacity
               style={[
                 styles.followButton,
@@ -157,18 +162,48 @@ const LoadUserProfile = ({
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.messageButton}onPress={() => router.push(`/chat/${profile._id}`)}>
+            <TouchableOpacity
+              style={styles.messageButton}
+              onPress={() => router.push(`/chat/${profile._id}`)}
+            >
               <Text style={styles.messageButtonText}>Message</Text>
             </TouchableOpacity>
           </View>
         )}
 
+        {!isCurrentUser && profile?.accountType === "private" && (
+          // Private account → Follow request only
+          <View style={styles.actionButtonsRow}>
+            <TouchableOpacity
+              style={[
+                styles.followButton,
+                isFollowing && styles.followingButton,
+              ]}
+              onPress={isFollowing ? onUnfollow : onFollow}
+            >
+              <Text
+                style={[
+                  styles.followButtonText,
+                  isFollowing && styles.followingButtonText,
+                ]}
+              >
+                {isFollowing ? "Requested" : "Send Request"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <View style={styles.privateContainer}>
+      <Text style={styles.privateTitle}>This Account is Private</Text>
+      <Text style={styles.privateSubtitle}>
+        Follow this account to see their photos and videos.
+      </Text>
+    </View>
         <View style={styles.segmentControl} />
       </View>
-      </>
+    </>
   );
 
- 
+
 
   return (
     <>
@@ -213,6 +248,25 @@ const LoadUserProfile = ({
 export default LoadUserProfile;
 
 const styles = StyleSheet.create({
+  privateContainer: {
+    marginTop: 16,
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+
+  privateTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#262626", // Instagram dark text
+    marginBottom: 4,
+  },
+
+  privateSubtitle: {
+    fontSize: 13,
+    color: "#8e8e8e", // Instagram muted gray
+    textAlign: "center",
+    lineHeight: 18,
+  },
   headerActions: {
     flexDirection: "row",
     alignItems: "center",

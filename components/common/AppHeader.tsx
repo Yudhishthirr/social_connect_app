@@ -8,7 +8,7 @@ const AppHeader = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView
+    < SafeAreaView
       edges={['top']}  // Only apply safe area to top
       className="bg-white"
     >
@@ -41,7 +41,7 @@ const AppHeader = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </ SafeAreaView>
   );
 };
 

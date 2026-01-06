@@ -2,17 +2,14 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 import { API_BASE_URL } from "@/constants/constant";
-// const LOCAL_IP = "10.233.101.161";
-// export const API_BASE_URL = `http://${LOCAL_IP}:5000/api/v1`;
+
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
 });
 
-// -------------------------------------
-// 1️⃣ REQUEST INTERCEPTOR (Attach Token)
-// -------------------------------------
+// interceptors to attach token to requests and handle token refresh
 api.interceptors.request.use(async (config) => {
   const token = await SecureStore.getItemAsync("accessToken");
 
@@ -23,9 +20,7 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// -------------------------------------
-// 2️⃣ RESPONSE INTERCEPTOR (Refresh Token)
-// -------------------------------------
+
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -46,10 +41,10 @@ api.interceptors.response.use(
 
         const newAccessToken = refreshResponse.data?.data?.accessToken;
 
-        // Save new token
+      
         await SecureStore.setItemAsync("accessToken", newAccessToken);
 
-        //retry failed request with new token
+        
         err.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return api(err.config);
 

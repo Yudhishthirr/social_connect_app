@@ -1,20 +1,19 @@
+import { sendMessage } from "@/services/messageService";
+import { socket } from "@/services/socket";
+import { RootState } from "@/store";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
-import { sendMessage } from "@/services/messageService";
-import { socket } from "@/services/socket";
-import { RootState } from "@/store";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
 interface Message {
@@ -131,7 +130,7 @@ const ChatDetailsScreen = () => {
   }, [messages]);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaProvider className="flex-1 bg-white">
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -235,7 +234,7 @@ const ChatDetailsScreen = () => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 

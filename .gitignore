@@ -41,3 +41,7 @@ app-example
 # generated native folders
 /ios
 /android
+
+google-services.json
+
+hologram-b4409-firebase-adminsdk-xxxxx.json
