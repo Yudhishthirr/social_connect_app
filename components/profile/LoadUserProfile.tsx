@@ -17,6 +17,7 @@ interface UserProfile {
   fullName: string;
   avatar: string;
   bio?: string;
+  isAi: boolean;
   accountType: string;
   postsCount: number;
   followersCount: number;
@@ -164,7 +165,19 @@ const LoadUserProfile = ({
 
             <TouchableOpacity
               style={styles.messageButton}
-              onPress={() => router.push(`/chat/${profile._id}`)}
+              // onPress={() => router.push(`/chat/${profile._id}_${profile.isAi}`)}
+              onPress={() =>
+                router.push({
+                  pathname: "/chat/[id]",
+                  params: {
+                    id: profile._id,
+                    isAi: String(profile.isAi), // must be string
+                    username:profile.username,
+                    avatar:profile.avatar
+                  },
+                })
+              }
+              
             >
               <Text style={styles.messageButtonText}>Message</Text>
             </TouchableOpacity>

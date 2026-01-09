@@ -44,10 +44,13 @@ const ApiEndpoint = {
 
   messages:{
     send: `${BASE}/messages`,
-    history: (userId: string) => `${BASE}/messages/history/${userId}`
+    getMessages: (otherUserId: string) => `${BASE}/messages/${otherUserId}`
   },
   search: {
     users: `${BASE}/users/search`,
+  },
+  ai: {
+    chat: `${BASE}/messages/ai`,
   }
   
 

@@ -12,6 +12,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export const MessageList = ({ threads }: any) => {
     const router = useRouter();
+
+    console.log("profiel ddata from message list");
+    console.log(threads);
     return (
       < SafeAreaProvider className="flex-1 bg-white">
         {/* HEADER */}
@@ -63,7 +66,17 @@ export const MessageList = ({ threads }: any) => {
             contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20 }}
             ItemSeparatorComponent={() => <View className="h-5" />}
             renderItem={({ item }) => (
-                <TouchableOpacity  onPress={() => router.push(`/chat/${item._id}`)}>
+                <TouchableOpacity   onPress={() =>
+                  router.push({
+                    pathname: "/chat/[id]",
+                    params: {
+                      id: item._id,
+                      isAi: String(item.isAi), // must be string
+                      username:item.username,
+                      avatar:item.avatar
+                    },
+                  })
+                }>
                     <View className="flex-row items-center justify-between">
                         <View className="flex-row items-center gap-4">
                         <Image

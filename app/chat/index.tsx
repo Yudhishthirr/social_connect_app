@@ -6,7 +6,8 @@ import { Text, View } from "react-native";
 const ChatScreen = () => {
   
   const { data, isLoading, isError } = useCurrentUser();
-
+  console.log(`messg list dara `);
+  console.log(data);
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -24,6 +25,9 @@ const ChatScreen = () => {
   }
 
   const followingList = data?.data?.followingList || [];
+  console.log("followinng list");
+  console.log(followingList)
+  
   return <MessageList threads={followingList} />;
   // return <Text>Hello chats</Text>
 };
